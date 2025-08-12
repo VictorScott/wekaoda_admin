@@ -1,14 +1,12 @@
-// Import Dependencies
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 
-// Local Imports
-import { Button, Card, Input } from "components/ui";
+import { Button, Card, Input, Spinner } from "components/ui";
 import Logo from "assets/WekaOda.svg?react";
 import { Page } from "components/shared/Page";
-
-// ----------------------------------------------------------------------
+import API from "utils/api";
+import {EyeIcon, EyeSlashIcon} from "@heroicons/react/24/outline";
 
 export default function ResetPassword() {
     const navigate = useNavigate();
@@ -19,8 +17,23 @@ export default function ResetPassword() {
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
     const inputsRef = useRef([]);
+    const location = useLocation();
+    const [otpToken, setOtpToken] = useState("");
+    const [email, setEmail] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Countdown for resend
+    useEffect(() => {
+        const state = location.state || {};
+        if (!state?.otpToken || !state?.email) {
+            toast.error("Missing OTP token or email");
+            navigate("/forgot-password");
+        } else {
+            setOtpToken(state.otpToken);
+            setEmail(state.email);
+        }
+    }, [location.state, navigate]);
+
     useEffect(() => {
         if (resendCooldown > 0) {
             const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
@@ -80,30 +93,56 @@ export default function ResetPassword() {
         try {
             setLoading(true);
 
-            // Simulate API call
-            await new Promise((res) => setTimeout(res, 1200));
+            const otp = digits.join("");
 
-            toast.success("Password reset successful!", { className: "soft-color" });
-
-            localStorage.removeItem("email");
-            localStorage.removeItem("otp_token");
-
-            navigate("/login");
-        } catch {
-            toast.error("Something went wrong. Please try again.", {
-                className: "soft-color",
+            const res = await API.post("/auth/reset-password", {
+                otp,
+                new_password: form.password,
+                otp_token: otpToken,
             });
+
+            if (res.data?.success) {
+                toast.success("Password reset successful!", { className: "soft-color" });
+
+                navigate("/login");
+            } else {
+                throw new Error(res.data.message || "Password reset failed");
+            }
+        } catch (err) {
+            console.log(err)
+            toast.error(
+                err.response?.data?.message || err.message || "Something went wrong.",
+                {
+                    className: "soft-color",
+                }
+            );
         } finally {
             setLoading(false);
         }
     };
 
-    const handleResend = () => {
+    const handleResend = async () => {
         if (resendCooldown > 0) return;
 
-        toast.message("OTP resent!", { className: "soft-color" });
-
-        setResendCooldown(60);
+        try {
+            await toast.promise(
+                API.post("/auth/resend-otp-forgot-password", { email }),
+                {
+                    loading: "Resending OTP...",
+                    success: (res) => {
+                        const newToken = res.data?.otp_token;
+                        if (newToken) setOtpToken(newToken);
+                        setResendCooldown(60);
+                        return "OTP resent successfully!";
+                    },
+                    error: (err) =>
+                        err.response?.data?.message || "Failed to resend OTP. Please try again.",
+                    className: "soft-color",
+                }
+            );
+        } catch (err) {
+            console.error("Resend OTP failed:", err);
+        }
     };
 
     return (
@@ -140,24 +179,62 @@ export default function ResetPassword() {
                             </div>
 
                             <Input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="New Password"
                                 name="password"
                                 value={form.password}
                                 onChange={handleChange}
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword((prev) => !prev)}
+                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                        tabIndex={-1}
+                                        aria-label={showPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showPassword ? (
+                                            <EyeSlashIcon className="size-5" />
+                                        ) : (
+                                            <EyeIcon className="size-5" />
+                                        )}
+                                    </button>
+                                }
                             />
+
                             <Input
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"}
                                 placeholder="Confirm Password"
                                 name="confirmPassword"
                                 value={form.confirmPassword}
                                 onChange={handleChange}
+                                suffix={
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                        className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                        tabIndex={-1}
+                                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                    >
+                                        {showConfirmPassword ? (
+                                            <EyeSlashIcon className="size-5" />
+                                        ) : (
+                                            <EyeIcon className="size-5" />
+                                        )}
+                                    </button>
+                                }
                             />
 
                             {error && <p className="text-sm text-red-500">{error}</p>}
 
                             <Button type="submit" className="w-full mt-2" color="primary" disabled={loading}>
-                                {loading ? "Updating..." : "Update Password"}
+                                {loading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Spinner color="primary" className="size-5 border-2" />
+                                        Updating...
+                                    </div>
+                                ) : (
+                                    "Update Password"
+                                )}
                             </Button>
 
                             <div className="mt-4 text-center text-xs-plus">

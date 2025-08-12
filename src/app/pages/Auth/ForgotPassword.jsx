@@ -1,21 +1,18 @@
-// Import Dependencies
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-// Local Imports
-import { Button, Card, Input } from "components/ui";
+import {Button, Card, Input, Spinner} from "components/ui";
 import Logo from "assets/WekaOda.svg?react";
 import { Page } from "components/shared/Page.jsx";
-
-// ----------------------------------------------------------------------
+import API from "../../../utils/api.js";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const navigate = useNavigate(); // ✅ Added navigation hook
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,26 +26,27 @@ export default function ForgotPassword() {
         try {
             setLoading(true);
 
-            // Simulated API call (replace with real API call)
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const res = await API.post("/auth/forgot-password", { email });
 
-            // ✅ Store email so it can be used in reset page
-            localStorage.setItem("email", email);
+            const otpToken = res.data?.otp_token;
 
-            toast.success("OTP sent successfully!", {
-                className: "soft-color",
+            if (!otpToken) throw new Error("OTP token missing from response");
+
+            toast.success("OTP sent successfully!", { className: "soft-color" });
+
+            navigate("/reset-password", {
+                state: {
+                    email,
+                    otpToken,
+                },
             });
-
+        } catch (err) {
+            const message =
+                err.response?.data?.message || err.message || "Failed to send reset link.";
+            toast.error(message, { className: "soft-color" });
+            setError(message);
+        } finally {
             setLoading(false);
-
-            // ✅ Navigate to reset-password page
-            navigate("/reset-password");
-        } catch {
-            setLoading(false);
-            toast.error("Failed to send reset link", {
-                className: "soft-color",
-            });
-            setError("Something went wrong. Please try again.");
         }
     };
 
@@ -63,7 +61,7 @@ export default function ForgotPassword() {
                                 Forgot Your Password?
                             </h2>
                             <p className="text-gray-400 dark:text-dark-300">
-                                Enter your email to receive a reset link.
+                                Enter your email to receive a reset otp.
                             </p>
                         </div>
                     </div>
@@ -79,13 +77,15 @@ export default function ForgotPassword() {
 
                             {error && <p className="text-sm text-red-500">{error}</p>}
 
-                            <Button
-                                type="submit"
-                                className="w-full mt-2"
-                                color="primary"
-                                disabled={loading}
-                            >
-                                {loading ? "Sending..." : "Send Reset Link"}
+                            <Button type="submit" className="w-full mt-2" color="primary" disabled={loading}>
+                                {loading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Spinner color="primary" className="size-5 border-2" />
+                                        Sending...
+                                    </div>
+                                ) : (
+                                    "Send Reset OTP"
+                                )}
                             </Button>
                         </form>
 
@@ -96,7 +96,7 @@ export default function ForgotPassword() {
                                     className="text-primary-600 transition-colors hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-600"
                                     to="/login"
                                 >
-                                    Back to Login
+                                    Login
                                 </Link>
                             </p>
                         </div>

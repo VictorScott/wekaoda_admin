@@ -48,56 +48,65 @@ const Avatar = forwardRef((props, ref) => {
 
   if (name) {
     chars = name
-      .match(/\b(\w)/g)
-      .slice(0, 2)
-      .join("");
+        .match(/\b(\w)/g)
+        .slice(0, 2)
+        .join("");
     if (initialColor === "auto") {
       resolvedColor = colorFromText(chars);
     }
   }
 
   return (
-    <Component
-      className={clsx(
-        "avatar relative inline-flex shrink-0",
-        className,
-        classNames?.root,
-      )}
-      ref={ref}
-      style={{ height: `${size / 4}rem`, width: `${size / 4}rem`, ...style }}
-      {...rest}
-    >
-      {src || srcSet ? (
-        <ImgComponent
+      <Component
           className={clsx(
-            "avatar-image avatar-display relative h-full w-full before:absolute before:inset-0 before:rounded-[inherit] before:bg-gray-150 dark:before:bg-dark-600",
-            classNames?.display,
-            classNames?.image,
+              "avatar relative inline-flex shrink-0",
+              className,
+              classNames?.root,
           )}
-          src={src}
-          srcSet={srcSet}
-          alt={alt || name || "avatar"}
-          loading={loading}
-          {...imgProps}
-        />
-      ) : (
-        <div
-          className={clsx(
-            "avatar-initial avatar-display flex h-full w-full select-none items-center justify-center font-medium uppercase",
-            resolvedColor !== "neutral"
-              ? [setThisClass(resolvedColor), variants[initialVariant]]
-              : neutralVariants[initialVariant],
-            classNames?.display,
-            classNames?.initial,
-          )}
-          {...initialProps}
-        >
-          {name ? chars : children}
-        </div>
-      )}
+          ref={ref}
+          style={{ height: `${size / 4}rem`, width: `${size / 4}rem`, ...style }}
+          {...rest}
+      >
+        {src || srcSet ? (
+            <ImgComponent
+                className={clsx(
+                    "avatar-image avatar-display relative h-full w-full before:absolute before:inset-0 before:rounded-[inherit] before:bg-gray-150 dark:before:bg-dark-600",
+                    classNames?.display,
+                    classNames?.image,
+                )}
+                src={src}
+                srcSet={srcSet}
+                alt={alt || name || "avatar"}
+                loading={loading}
+                {...imgProps}
+            />
+        ) : (
+            <div
+                className={clsx(
+                    "avatar-initial avatar-display flex h-full w-full select-none items-center justify-center font-medium uppercase",
+                    resolvedColor !== "neutral" && !resolvedColor.startsWith("#")
+                        ? [setThisClass(resolvedColor), variants[initialVariant]]
+                        : neutralVariants[initialVariant],
+                    classNames?.display,
+                    classNames?.initial,
+                )}
+                style={
+                  resolvedColor?.startsWith("#")
+                      ? {
+                        backgroundColor: resolvedColor,
+                        color: "#fff",
+                        ...style,
+                      }
+                      : style
+                }
+                {...initialProps}
+            >
+              {name ? chars : children}
+            </div>
+        )}
 
-      {indicator}
-    </Component>
+        {indicator}
+      </Component>
   );
 });
 

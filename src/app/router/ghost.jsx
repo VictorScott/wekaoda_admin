@@ -11,21 +11,9 @@ const ghostRoutes = {
       }),
     },
     {
-      path: "register",
-      lazy: async () => ({
-        Component: (await import("app/pages/Auth/Register.jsx")).default,
-      }),
-    },
-    {
       path: "otp-verification",
       lazy: async () => ({
         Component: (await import("app/pages/Auth/OtpVerification.jsx")).default,
-      }),
-    },
-    {
-      path: "registration-info",
-      lazy: async () => ({
-        Component: (await import("app/pages/Auth/RegistrationInfo.jsx")).default,
       }),
     },
     {

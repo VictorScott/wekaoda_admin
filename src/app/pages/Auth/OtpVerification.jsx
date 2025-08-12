@@ -1,24 +1,41 @@
-// Import Dependencies
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-// Local Imports
-import { Button, Card, Input } from "components/ui";
+import { Button, Card, Input, Spinner } from "components/ui";
 import Logo from "assets/WekaOda.svg?react";
 import { Page } from "components/shared/Page";
-
-// ----------------------------------------------------------------------
+import API from "utils/api";
+import { useAuthContext } from "app/contexts/auth/context";
 
 export default function OtpVerification() {
     const [digits, setDigits] = useState(["", "", "", "", ""]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
+
+    const [otpToken, setOtpToken] = useState("");
+    const [email, setEmail] = useState("");
+    const [redirectTo, setRedirectTo] = useState(null);
+
     const inputsRef = useRef([]);
     const navigate = useNavigate();
+    const location = useLocation();
+    const { verifyOtp } = useAuthContext();
 
-    // Countdown timer for resend
+    useEffect(() => {
+        const { otp_token, email, redirectTo } = location.state || {};
+
+        if (!otp_token || !email) {
+            toast.error("Missing OTP token or email");
+            navigate("/login");
+        } else {
+            setOtpToken(otp_token);
+            setEmail(email);
+            setRedirectTo(redirectTo || "/");
+        }
+    }, [location.state, navigate]);
+
     useEffect(() => {
         if (resendCooldown > 0) {
             const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
@@ -26,7 +43,6 @@ export default function OtpVerification() {
         }
     }, [resendCooldown]);
 
-    // Handle input change
     const handleInputChange = (index, value, e) => {
         if (e.type === "paste") {
             const paste = e.clipboardData.getData("text").slice(0, 5).split("");
@@ -53,7 +69,6 @@ export default function OtpVerification() {
         }
     };
 
-    // Handle form submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -64,38 +79,48 @@ export default function OtpVerification() {
             return;
         }
 
+        setLoading(true);
+
         try {
-            setLoading(true);
-
-            // Simulated API call (replace with real API)
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-
-            toast.success("OTP verified successfully!", {
-                className: "soft-color",
+            await verifyOtp({
+                otp,
+                type: "user",
+                otp_token: otpToken,
             });
 
+            toast.success("Logged in successfully!", { className: "soft-color" });
+            navigate(redirectTo || "/");
+        } catch (err) {
+            const message = err.response?.data?.message || err.message || "Failed to verify OTP.";
+            setError(message);
+            toast.error(message);
+        } finally {
             setLoading(false);
-
-            // ✅ Redirect to registration-info page
-            navigate("/registration-info");
-        } catch {
-            setLoading(false);
-            toast.error("Failed to verify OTP", {
-                className: "soft-color",
-            });
-            setError("OTP verification failed. Please try again.");
         }
     };
 
-    // Handle OTP resend
-    const handleResend = () => {
+    const handleResend = async () => {
         if (resendCooldown > 0) return;
 
-        toast.message("OTP resent!", {
-            className: "soft-color",
-        });
-
-        setResendCooldown(60); // 60s cooldown
+        try {
+            await toast.promise(
+                API.post("/auth/resend-otp", { email }),
+                {
+                    loading: "Resending OTP...",
+                    success: (res) => {
+                        const newToken = res.data?.otp_token;
+                        if (newToken) setOtpToken(newToken);
+                        setResendCooldown(60);
+                        return "OTP resent successfully!";
+                    },
+                    error: (err) =>
+                        err.response?.data?.message || "Failed to resend OTP. Please try again.",
+                    className: "soft-color",
+                }
+            );
+        } catch (err) {
+            console.error("Resend OTP failed:", err);
+        }
     };
 
     return (
@@ -106,10 +131,10 @@ export default function OtpVerification() {
                         <Logo className="mx-auto size-16" />
                         <div className="mt-4">
                             <h2 className="text-2xl font-semibold text-gray-600 dark:text-dark-100">
-                                Verify Email
+                                Verify Login
                             </h2>
                             <p className="text-gray-400 dark:text-dark-300">
-                                Enter the 5-digit code sent to your email
+                                Enter the 5-digit code sent to {email}
                             </p>
                         </div>
                     </div>
@@ -124,12 +149,8 @@ export default function OtpVerification() {
                                         maxLength={1}
                                         className="text-center text-xl"
                                         ref={(el) => (inputsRef.current[i] = el)}
-                                        onChange={(e) =>
-                                            handleInputChange(i, e.target.value, e)
-                                        }
-                                        onKeyDown={(e) =>
-                                            handleInputChange(i, e.target.value, e)
-                                        }
+                                        onChange={(e) => handleInputChange(i, e.target.value, e)}
+                                        onKeyDown={(e) => handleInputChange(i, e.target.value, e)}
                                         onPaste={(e) => handleInputChange(i, e.target.value, e)}
                                     />
                                 ))}
@@ -143,7 +164,14 @@ export default function OtpVerification() {
                                 color="primary"
                                 disabled={loading}
                             >
-                                {loading ? "Verifying..." : "Verify OTP"}
+                                {loading ? (
+                                    <div className="flex items-center justify-center gap-2">
+                                        <Spinner color="primary" className="size-5 border-2" />
+                                        Verifying...
+                                    </div>
+                                ) : (
+                                    "Verify OTP"
+                                )}
                             </Button>
 
                             <div className="mt-4 text-center text-xs-plus">
@@ -168,7 +196,7 @@ export default function OtpVerification() {
                                 <span>Entered wrong email?</span>{" "}
                                 <Link
                                     className="text-primary-600 transition-colors hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-600"
-                                    to="/register"
+                                    to="/login"
                                 >
                                     Go back
                                 </Link>
