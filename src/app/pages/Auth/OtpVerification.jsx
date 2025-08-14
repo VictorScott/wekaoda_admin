@@ -123,6 +123,18 @@ export default function OtpVerification() {
         }
     };
 
+    function maskEmail(email) {
+        if (!email || !email.includes("@")) return "";
+
+        const [name, domain] = email.split("@");
+
+        if (name.length <= 2) {
+            return `${name[0]}***@${domain}`;
+        }
+
+        return `${name[0]}***${name.slice(-1)}@${domain}`;
+    }
+
     return (
         <Page title="Verify OTP">
             <main className="min-h-100vh grid w-full grow grid-cols-1 place-items-center">
@@ -134,7 +146,7 @@ export default function OtpVerification() {
                                 Verify Login
                             </h2>
                             <p className="text-gray-400 dark:text-dark-300">
-                                Enter the 5-digit code sent to {email}
+                                Enter the 5-digit code sent to <strong>{maskEmail(email)}</strong>
                             </p>
                         </div>
                     </div>
