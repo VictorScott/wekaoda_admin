@@ -3,7 +3,7 @@ import axios from 'axios';
 // Base URLs – single or multiple
 const BASE_URLS = [
     'http://localhost:8105/api/v1/admin',
-    'https://wekaoda.little.africa/api/v1/business'
+    'https://wekaoda.little.africa/api/v1/admin'
 ];
 
 // Use the first URL as the default base
