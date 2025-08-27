@@ -1,4 +1,3 @@
-// Import Dependencies
 import {
   Popover,
   PopoverButton,
@@ -7,15 +6,10 @@ import {
 } from "@headlessui/react";
 import {
   ArrowLeftStartOnRectangleIcon,
-  Cog6ToothIcon,
 } from "@heroicons/react/24/outline";
-import { TbCoins, TbUser } from "react-icons/tb";
+import { TbUser } from "react-icons/tb";
 import { Link } from "react-router";
-
-// Local Imports
 import { Avatar, AvatarDot, Button } from "components/ui";
-
-// ----------------------------------------------------------------------
 
 const links = [
   {
