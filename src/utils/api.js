@@ -2,12 +2,16 @@ import axios from 'axios';
 
 // Base URLs – single or multiple
 const BASE_URLS = [
-    'http://localhost:8105/api/v1/admin'
-    // You can add more URLs here if needed
+    'http://localhost:8105/api/v1/admin',
+    'https://wekaoda.little.africa/api/v1/business'
 ];
 
 // Use the first URL as the default base
-const DEFAULT_BASE_URL = BASE_URLS[0];
+// Determine environment
+const isLocal = window.location.hostname === 'localhost';
+
+// Choose base URL
+const DEFAULT_BASE_URL = isLocal ? BASE_URLS[0] : BASE_URLS[1];
 
 const API = axios.create({
     baseURL: DEFAULT_BASE_URL,
