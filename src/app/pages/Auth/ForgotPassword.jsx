@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-import {Button, Card, Input, Spinner} from "components/ui";
+import {Button, Card, GhostSpinner, Input} from "components/ui";
 import Logo from "assets/WekaOda.svg?react";
 import { Page } from "components/shared/Page.jsx";
 import API from "../../../utils/api.js";
@@ -80,7 +80,7 @@ export default function ForgotPassword() {
                             <Button type="submit" className="w-full mt-2" color="primary" disabled={loading}>
                                 {loading ? (
                                     <div className="flex items-center justify-center gap-2">
-                                        <Spinner color="primary" className="size-5 border-2" />
+                                        <GhostSpinner className="size-5 border-2" />
                                         Sending...
                                     </div>
                                 ) : (

@@ -5,9 +5,8 @@ import { useForm } from "react-hook-form";
 import {Link, useNavigate} from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
-
 import Logo from "assets/WekaOda.svg?react";
-import {Button, Card, Checkbox, Input, InputErrorMsg, Spinner} from "components/ui";
+import {Button, Card, Checkbox, GhostSpinner, Input, InputErrorMsg} from "components/ui";
 import { useAuthContext } from "app/contexts/auth/context";
 import { Page } from "components/shared/Page";
 import { REDIRECT_URL_KEY } from "constants/app.constant";
@@ -131,7 +130,7 @@ export default function Login() {
                 >
                   {isLoading ? (
                       <div className="flex items-center justify-center gap-2">
-                        <Spinner color="primary" className="size-5 border-2" />
+                        <GhostSpinner className="size-5 border-2" />
                         Logging in...
                       </div>
                   ) : (

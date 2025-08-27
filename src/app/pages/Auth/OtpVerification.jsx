@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
-import { Button, Card, Input, Spinner } from "components/ui";
+import {Button, Card, GhostSpinner, Input} from "components/ui";
 import Logo from "assets/WekaOda.svg?react";
 import { Page } from "components/shared/Page";
 import API from "utils/api";
@@ -178,7 +177,7 @@ export default function OtpVerification() {
                             >
                                 {loading ? (
                                     <div className="flex items-center justify-center gap-2">
-                                        <Spinner color="primary" className="size-5 border-2" />
+                                        <GhostSpinner className="size-5 border-2" />
                                         Verifying...
                                     </div>
                                 ) : (
