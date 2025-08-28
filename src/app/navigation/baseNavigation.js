@@ -6,7 +6,7 @@ export const baseNavigation = [
         id: 'dashboards',
         type: NAV_TYPE_ITEM,
         path: '/dashboards',
-        title: 'Dashboards',
+        title: 'Dashboard',
         transKey: 'nav.dashboards.dashboards',
         Icon: DashboardsIcon,
     },
