@@ -1,7 +1,4 @@
-// Import Dependencies
 import PropTypes from "prop-types";
-
-// Local Imports
 import { useDisclosure, useDidUpdate, useIsomorphicEffect } from "hooks";
 import { useBreakpointsContext } from "../breakpoint/context";
 import { SidebarContext } from "./context";

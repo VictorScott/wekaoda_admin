@@ -1,13 +1,8 @@
-// Import Dependencies
 import PropTypes from "prop-types";
-
-// Local Imports
 import { defaultTheme } from "configs/theme.config";
 import { colors } from "constants/colors.constant";
 import { useIsomorphicEffect, useLocalStorage, useMediaQuery } from "hooks";
 import { ThemeContext } from "./context";
-
-// ----------------------------------------------------------------------
 
 const initialState = {
   ...defaultTheme,

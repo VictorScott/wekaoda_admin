@@ -1,17 +1,12 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import { Link } from "react-router";
 import clsx from "clsx";
-
-// Local Imports
 import Logo from "assets/WekaOda.svg?react";
 import { Menu } from "./Menu";
 import { Item } from "./Menu/Item";
 import { Profile } from "../../Profile";
 import { useThemeContext } from "app/contexts/theme/context";
 import { settings } from "app/navigation/settings";
-
-// ----------------------------------------------------------------------
 
 export function MainPanel({ nav, setActiveSegment, activeSegment }) {
   const { cardSkin } = useThemeContext();

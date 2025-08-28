@@ -8,7 +8,6 @@ import { ArrowLeftStartOnRectangleIcon } from "@heroicons/react/24/outline";
 import { TbUser } from "react-icons/tb";
 import { Link } from "react-router";
 import { toast } from "sonner";
-
 import { Avatar, AvatarDot, Button } from "components/ui";
 import { useAuthContext } from "app/contexts/auth/context";
 

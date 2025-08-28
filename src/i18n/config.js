@@ -1,12 +1,7 @@
-// Import Dependencies
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-
-// Local Imports
 import { defaultTheme } from "configs/theme.config";
-
-// ----------------------------------------------------------------------
 
 i18n
   .use(LanguageDetector)

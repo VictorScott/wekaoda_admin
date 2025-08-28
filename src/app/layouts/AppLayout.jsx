@@ -1,14 +1,9 @@
-// Import Dependencies
 import { Outlet } from "react-router";
 import { useState } from "react";
-
-// Local Imports
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { useThemeContext } from "app/contexts/theme/context";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { useIsomorphicEffect } from "hooks";
-
-// ----------------------------------------------------------------------
 
 const dataset = document?.body?.dataset;
 

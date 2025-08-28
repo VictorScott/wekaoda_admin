@@ -1,13 +1,8 @@
-// Import Dependencies
 import { Outlet } from "react-router";
-
-// Local Imports
 import { Page } from "components/shared/Page";
 import { Header } from "app/layouts/MainLayout/Header";
 import { Sidebar } from "./Sidebar";
 import { Card } from "components/ui";
-
-// ----------------------------------------------------------------------
 
 export default function Settings() {
   return (

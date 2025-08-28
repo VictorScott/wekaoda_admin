@@ -1,8 +1,5 @@
-// Import Dependencies
 import { useMemo, useState } from "react";
 import { useLocation } from "react-router";
-
-// Local Imports
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { navigation } from "app/navigation";
@@ -10,8 +7,6 @@ import { useDidUpdate } from "hooks";
 import { isRouteActive } from "utils/isRouteActive";
 import { MainPanel } from "./MainPanel";
 import { PrimePanel } from "./PrimePanel";
-
-// ----------------------------------------------------------------------
 
 export function Sidebar() {
   const { pathname } = useLocation();

@@ -1,15 +1,10 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
-
-// Local Imports
 import { NAV_TYPE_ITEM } from "constants/app.constant";
 import { ScrollShadow } from "components/ui";
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { Item } from "./Item";
-
-// ----------------------------------------------------------------------
 
 export function Menu({ nav, setActiveSegment, activeSegment }) {
   const { t } = useTranslation();

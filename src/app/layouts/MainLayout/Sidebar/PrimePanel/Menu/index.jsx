@@ -1,9 +1,6 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import { useMemo, useState } from "react";
 import SimpleBar from "simplebar-react";
-
-// Local Imports
 import { isRouteActive } from "utils/isRouteActive";
 import {
   useDataScrollOverflow,
@@ -19,8 +16,6 @@ import {
   NAV_TYPE_DIVIDER,
   NAV_TYPE_ITEM,
 } from "constants/app.constant";
-
-// ----------------------------------------------------------------------
 
 export function Menu({ nav, pathname }) {
   const initialActivePath = useMemo(() => {

@@ -1,12 +1,7 @@
-// Import Dependencies
 import { Navigate } from "react-router";
-
-// Local Imports
 import { AppLayout } from "app/layouts/AppLayout";
 import { DynamicLayout } from "app/layouts/DynamicLayout";
 import AuthGuard from "middleware/AuthGuard";
-
-// ----------------------------------------------------------------------
 
 const protectedRoutes = {
   id: "protected",
@@ -18,14 +13,14 @@ const protectedRoutes = {
       children: [
         {
           index: true,
-          element: <Navigate to="/dashboards" />,
+          element: <Navigate to="/dashboard" />,
         },
         {
-          path: "dashboards",
+          path: "dashboard",
           children: [
             {
               index: true,
-              element: <Navigate to="/dashboards/home" />,
+              element: <Navigate to="/dashboard/home" />,
             },
             {
               path: "home",

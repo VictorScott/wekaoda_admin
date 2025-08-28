@@ -1,13 +1,8 @@
-// Import Dependencies
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { useTranslation } from "react-i18next";
-
-// Local Imports
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { Avatar, Button } from "components/ui";
 import { settings } from "app/navigation/settings";
-
-// ----------------------------------------------------------------------
 
 export function Header() {
   const { close: closeSidebar } = useSidebarContext();

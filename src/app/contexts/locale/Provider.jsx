@@ -1,16 +1,11 @@
-// Import Dependencies
 import { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
-
-// Local Imports
 import { useIsomorphicEffect } from "hooks";
 import { defaultTheme } from "configs/theme.config";
 import i18n from "i18n/config";
 import { LocaleContext } from "./context";
 import { locales } from "i18n/langs";
-
-// ----------------------------------------------------------------------
 
 // Set the initial language from i18n or fallback to the default theme language
 const initialLang =

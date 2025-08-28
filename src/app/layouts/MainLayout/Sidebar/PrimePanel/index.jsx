@@ -1,15 +1,10 @@
-// Import Dependencies
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { ChevronLeftIcon } from "@heroicons/react/20/solid";
 import { useTranslation } from "react-i18next";
-
-// Local Imports
 import { useThemeContext } from "app/contexts/theme/context";
 import { Button } from "components/ui";
 import { Menu } from "./Menu";
-
-// ----------------------------------------------------------------------
 
 export function PrimePanel({
   currentSegment,

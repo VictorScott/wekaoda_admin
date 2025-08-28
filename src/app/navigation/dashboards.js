@@ -2,15 +2,15 @@ import { HomeIcon } from '@heroicons/react/24/outline';
 import DashboardsIcon from 'assets/dualicons/dashboards.svg?react'
 import { NAV_TYPE_ROOT, NAV_TYPE_ITEM } from 'constants/app.constant'
 
-const ROOT_DASHBOARDS = '/dashboards'
+const ROOT_DASHBOARDS = '/dashboard'
 
 const path = (root, item) => `${root}${item}`;
 
 export const dashboards = {
     id: 'dashboards',
     type: NAV_TYPE_ROOT,
-    path: '/dashboards',
-    title: 'Dashboards',
+    path: '/dashboard',
+    title: 'Dashboard',
     transKey: 'nav.dashboards.dashboards',
     Icon: DashboardsIcon,
     childs: [

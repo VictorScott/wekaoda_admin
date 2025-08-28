@@ -1,10 +1,7 @@
-// Import Dependencies
 import clsx from "clsx";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router";
 import { useTranslation } from "react-i18next";
-
-// Local Imports
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { Button, ScrollShadow } from "components/ui";
@@ -13,8 +10,6 @@ import { useThemeContext } from "app/contexts/theme/context";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { settings } from "app/navigation/settings";
-
-// ----------------------------------------------------------------------
 
 export function SidebarPanel() {
   const { cardSkin } = useThemeContext();

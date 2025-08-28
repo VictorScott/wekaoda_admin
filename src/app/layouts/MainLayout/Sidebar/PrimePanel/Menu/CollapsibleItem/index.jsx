@@ -1,15 +1,10 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import clsx from "clsx";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { useTranslation } from "react-i18next";
-
-// Local Imports
 import { AccordionButton, AccordionItem, AccordionPanel } from "components/ui";
 import { useLocaleContext } from "app/contexts/locale/context";
 import { MenuItem } from "./MenuItem";
-
-// ----------------------------------------------------------------------
 
 export function CollapsibleItem({ data }) {
   const { path, childs, transKey } = data;

@@ -1,15 +1,10 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import clsx from "clsx";
 import { NavLink, useRouteLoaderData } from "react-router";
-
-// Local Imports
 import { Badge } from "components/ui";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { useSidebarContext } from "app/contexts/sidebar/context";
 import { useTranslation } from "react-i18next";
-
-// ----------------------------------------------------------------------
 
 export function MenuItem({ data }) {
   const { transKey, path, id } = data;

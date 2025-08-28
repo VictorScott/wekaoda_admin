@@ -1,14 +1,9 @@
-// Import Dependencies
 import { PhoneIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { EnvelopeIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { HiPencil } from "react-icons/hi";
-
-// Local Imports
 import { PreviewImg } from "components/shared/PreviewImg";
 import { Avatar, Button, Input, Upload } from "components/ui";
-
-// ----------------------------------------------------------------------
 
 export default function General() {
   const [avatar, setAvatar] = useState(null);

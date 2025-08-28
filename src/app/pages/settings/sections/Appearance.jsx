@@ -1,16 +1,11 @@
-// Import Dependencies
 import { Label, Radio, RadioGroup } from "@headlessui/react";
 import clsx from "clsx";
 import { toast } from "sonner";
-
-// Local Imports
 import { useThemeContext } from "app/contexts/theme/context";
 import { colors } from "constants/colors.constant";
 import { Listbox } from "components/shared/form/Listbox";
 import { useDidUpdate } from "hooks";
 import { Button, Switch } from "components/ui";
-
-// ----------------------------------------------------------------------
 
 const primaryColors = ["indigo", "blue", "green", "amber", "purple", "rose"];
 const lightColors = ["slate", "gray", "neutral"];

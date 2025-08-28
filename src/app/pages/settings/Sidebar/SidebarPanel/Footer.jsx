@@ -1,4 +1,3 @@
-// Import Dependencies
 import { Radio, RadioGroup } from "@headlessui/react";
 import {
   ComputerDesktopIcon,
@@ -6,12 +5,8 @@ import {
   SunIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-
-// Local Imports
 import { Button } from "components/ui";
 import { useThemeContext } from "app/contexts/theme/context";
-
-// ----------------------------------------------------------------------
 
 export function Footer() {
   const { themeMode, setThemeMode } = useThemeContext();

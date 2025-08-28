@@ -1,14 +1,9 @@
-// Import Dependencies
 import PropTypes from "prop-types";
 import clsx from "clsx";
 import { useRouteLoaderData } from "react-router";
-
-// Local Imports
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { Badge } from "components/ui";
 import { createScopedKeydownHandler } from "utils/dom/createScopedKeydownHandler";
-
-// ----------------------------------------------------------------------
 
 export function Item({
   id,
