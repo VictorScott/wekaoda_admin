@@ -28,6 +28,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/home")).default,
               }),
             },
+            {
+              path: "businesses",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/businesses")).default,
+              }),
+            },
           ],
         },
       ],

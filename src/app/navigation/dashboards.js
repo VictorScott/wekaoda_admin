@@ -22,6 +22,13 @@ export const dashboards = {
             transKey: 'nav.dashboards.home',
             Icon: HomeIcon,
         },
-
+        {
+            id: 'dashboards.businesses',
+            path: path(ROOT_DASHBOARDS, '/businesses'),
+            type: NAV_TYPE_ITEM,
+            title: 'All Businesses',
+            transKey: 'nav.dashboards.businesses',
+            Icon: HomeIcon,
+        },
     ]
 }

@@ -1,4 +1,3 @@
-// Import Dependencies
 import { FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import PropTypes from "prop-types";
 import clsx from "clsx";
@@ -9,14 +8,10 @@ import {
   ComboboxOption,
   ComboboxOptions,
 } from "@headlessui/react";
-
-// Local Imports
 import { Badge, Button, Checkbox, Input } from "components/ui";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import { useFuse } from "hooks";
 import { ResponsiveFilter } from "./ResponsiveFilter";
-
-// ----------------------------------------------------------------------
 
 export function FilterSelector({ table, options }) {
   const selectedFiltersLength = table?.getState()?.toolbarFilters?.length;
