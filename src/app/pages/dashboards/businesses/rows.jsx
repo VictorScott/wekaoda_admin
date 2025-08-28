@@ -1,10 +1,9 @@
 import {
     CheckIcon,
-    StarIcon,
 } from "@heroicons/react/20/solid";
 import PropTypes from "prop-types";
 import {Avatar, Badge, Swap, SwapOff, SwapOn} from "components/ui";
-import { courseStatusOptions, levelOptions } from "./data";
+import {levelOptions, verificationOptions, statusOptions} from "./data";
 import {Highlight} from "../../../../components/shared/Highlight.jsx";
 import {ensureString} from "../../../../utils/ensureString.js";
 
@@ -33,9 +32,8 @@ export function NameCell({ row, getValue, column, table }) {
                             root: "rounded-full border-2 border-dashed border-transparent p-0.5 transition-colors group-hover/tr:border-gray-400 dark:group-hover/tr:border-dark-300",
                             display: "text-xs-plus",
                         }}
-                        src={row.original.avatar}
                         initialColor="auto"
-                        name={row.original.name}
+                        name={row.original.business_name}
                     />
                 </SwapOff>
             </Swap>
@@ -47,41 +45,37 @@ export function NameCell({ row, getValue, column, table }) {
     );
 }
 
-export function RatingCell({ getValue }) {
-  return (
-    <div className="flex items-center space-x-1 ">
-      <StarIcon className="size-4 text-yellow-500" />
-      <span>{getValue()}</span>
-    </div>
-  );
-}
-
-export function StatusCell({ getValue }) {
+export function LevelCell({ getValue }) {
     const val = getValue();
-    const option = courseStatusOptions.find((item) => item.value === val);
+    const option = levelOptions.find((item) => item.value === val);
 
     return (
-        <Badge color={option.color} className="space-x-1.5 ">
-            {option.icon && <option.icon className="h-4 w-4" />}
-
-            <span>{option.label}</span>
+        <Badge color={option?.color} className="rounded-full" variant="outlined">
+            {option?.label || val}
         </Badge>
     );
 }
 
-export function LevelCell({ getValue }) {
-  const val = getValue();
-  const option = levelOptions.find((item) => item.value === val);
+export function StatusCell({ getValue }) {
+    const val = getValue();
+    const option = statusOptions.find((item) => item.value === val);
 
-  return (
-    <Badge color={option?.color} className="rounded-full" variant="outlined">
-      {option.label}
-    </Badge>
-  );
+    return (
+        <Badge color={option?.color || "neutral"} className="space-x-1.5 ">
+            <span>{option?.label || val}</span>
+        </Badge>
+    );
 }
 
-export function PriceCell({ getValue }) {
-  return <>${getValue()}</>;
+export function VerificationStatusCell({ getValue }) {
+    const val = getValue();
+    const option = verificationOptions.find((item) => item.value === val);
+
+    return (
+        <Badge color={option?.color || "neutral"} className="space-x-1.5 ">
+            <span>{option?.label || val}</span>
+        </Badge>
+    );
 }
 
 NameCell.propTypes = {
@@ -93,14 +87,6 @@ LevelCell.propTypes = {
   getValue: PropTypes.func,
 };
 
-RatingCell.propTypes = {
-  getValue: PropTypes.func,
-};
-
 StatusCell.propTypes = {
-  getValue: PropTypes.func,
-};
-
-PriceCell.propTypes = {
   getValue: PropTypes.func,
 };

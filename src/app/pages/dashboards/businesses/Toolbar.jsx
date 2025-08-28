@@ -1,30 +1,23 @@
 import {
   CheckCircleIcon,
-  ClockIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { TbCurrencyDollar } from "react-icons/tb";
 import clsx from "clsx";
 import {
   ChartBarIcon,
-  UserGroupIcon,
-  UserIcon,
 } from "@heroicons/react/20/solid";
 import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
-import { RangeFilter } from "components/shared/table/RangeFilter";
-import { RadioFilter } from "components/shared/table/RadioFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
 import { Button, Input } from "components/ui";
 import { TableConfig } from "./TableConfig";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import {
-  courseStatusOptions,
-  durationOptions,
-  filtersOptions,
-  levelOptions,
+    filtersOptions,
+    levelOptions,
+    statusOptions,
+    verificationOptions,
 } from "./data";
-import { formatNumber } from "utils/formatNumber";
 
 export function Toolbar({ table }) {
   const { isXs } = useBreakpointsContext();
@@ -110,141 +103,38 @@ function Filters({ table }) {
 
   return (
     <>
-      {toolbarFilters.includes("level") && table.getColumn("level") && (
-        <div style={{ order: toolbarFilters.indexOf("level") + 1 }}>
-          <FacedtedFilter
-            options={levelOptions}
-            column={table.getColumn("level")}
-            title="Level"
-            Icon={ChartBarIcon}
-          />
-        </div>
-      )}
-
-      {toolbarFilters.includes("status") && table.getColumn("status") && (
-        <div style={{ order: toolbarFilters.indexOf("status") + 1 }}>
-          <FacedtedFilter
-            options={courseStatusOptions}
-            column={table.getColumn("status")}
-            title="Status"
-            Icon={CheckCircleIcon}
-          />
-        </div>
-      )}
-
-     {/* {toolbarFilters.includes("rating") && table.getColumn("rating") && (
-        <div style={{ order: toolbarFilters.indexOf("rating") + 1 }}>
-          <RangeFilter
-            column={table.getColumn("rating")}
-            title="Rating"
-            buttonText={({ min, max }) => (
-              <>
-                {min && (
-                  <>
-                    From {min}{" "}
-                    <StarIcon className="inline size-3.5 align-text-top opacity-70" />
-                  </>
-                )}
-                {min && max && " - "}
-                {max && (
-                  <>
-                    To {max}{" "}
-                    <StarIcon className="inline size-3.5 align-text-top opacity-70" />
-                  </>
-                )}
-              </>
-            )}
-            Icon={StarIcon}
-            MinPrefixIcon={StarIcon}
-            MaxPrefixIcon={StarIcon}
-          />
-        </div>
-      )}*/}
-
-      {toolbarFilters.includes("lesson_count") &&
-        table.getColumn("lesson_count") && (
-          <div style={{ order: toolbarFilters.indexOf("lesson_count") + 1 }}>
-            <RangeFilter
-              column={table.getColumn("lesson_count")}
-              title="Lesson Count"
-              buttonText={({ min, max }) => (
-                <>
-                  {min && <>From {min} lessons</>}
-                  {min && max && " - "}
-                  {max && <>To {max} lessons</>}
-                </>
-              )}
-            />
-          </div>
+        {toolbarFilters.includes("level") && table.getColumn("level") && (
+            <div style={{ order: toolbarFilters.indexOf("level") + 1 }}>
+                <FacedtedFilter
+                    options={levelOptions}
+                    column={table.getColumn("level")}
+                    title="Level"
+                    Icon={ChartBarIcon}
+                />
+            </div>
         )}
 
-      {toolbarFilters.includes("duration") && table.getColumn("duration") && (
-        <div style={{ order: toolbarFilters.indexOf("duration") + 1 }}>
-          <RadioFilter
-            column={table.getColumn("duration")}
-            Icon={ClockIcon}
-            title="Duration"
-            options={durationOptions}
-          />
-        </div>
-      )}
+        {toolbarFilters.includes("status") && table.getColumn("status") && (
+            <div style={{ order: toolbarFilters.indexOf("status") + 1 }}>
+                <FacedtedFilter
+                    options={statusOptions}
+                    column={table.getColumn("status")}
+                    title="Status"
+                    Icon={CheckCircleIcon}
+                />
+            </div>
+        )}
 
-      {toolbarFilters.includes("price") && table.getColumn("price") && (
-        <div style={{ order: toolbarFilters.indexOf("price") + 1 }}>
-          <RangeFilter
-            column={table.getColumn("price")}
-            title="Price"
-            buttonText={({ min, max }) => (
-              <>
-                {min && <>From ${min}</>}
-                {min && max && " - "}
-                {max && <>To ${max}</>}
-              </>
-            )}
-            Icon={TbCurrencyDollar}
-            MinPrefixIcon={TbCurrencyDollar}
-            MaxPrefixIcon={TbCurrencyDollar}
-          />
-        </div>
-      )}
-
-      {toolbarFilters.includes("earning") && table.getColumn("earning") && (
-        <div style={{ order: toolbarFilters.indexOf("earning") + 1 }}>
-          <RangeFilter
-            column={table.getColumn("earning")}
-            title="Earning"
-            buttonText={({ min, max }) => (
-              <>
-                {min && <>From ${formatNumber(min)}</>}
-                {min && max && " - "}
-                {max && <>To ${formatNumber(max)}</>}
-              </>
-            )}
-            Icon={TbCurrencyDollar}
-            MinPrefixIcon={TbCurrencyDollar}
-            MaxPrefixIcon={TbCurrencyDollar}
-          />
-        </div>
-      )}
-
-      {toolbarFilters.includes("students") && table.getColumn("students") && (
-        <div style={{ order: toolbarFilters.indexOf("students") + 1 }}>
-          <RangeFilter
-            column={table.getColumn("students")}
-            title="Students"
-            Icon={UserGroupIcon}
-            MinPrefixIcon={UserIcon}
-            MaxPrefixIcon={UserIcon}
-            buttonText={({ min, max }) => (
-              <>
-                {min && <>From {formatNumber(min)} students</>}
-                {min && max && " - "}
-                {max && <>To {formatNumber(max)} students</>}
-              </>
-            )}
-          />
-        </div>
-      )}
+        {toolbarFilters.includes("verification_status") && table.getColumn("verification_status") && (
+            <div style={{ order: toolbarFilters.indexOf("verification_status") + 1 }}>
+                <FacedtedFilter
+                    options={verificationOptions}
+                    column={table.getColumn("verification_status")}
+                    title="Verification"
+                    Icon={CheckCircleIcon}
+                />
+            </div>
+        )}
 
       <div style={{ order: toolbarFilters.length + 1 }}>
         <FilterSelector options={filtersOptions} table={table} />

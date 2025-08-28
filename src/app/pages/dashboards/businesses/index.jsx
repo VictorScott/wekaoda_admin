@@ -9,8 +9,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import clsx from "clsx";
-import { useState } from "react";
-import { Table, Card, THead, TBody, Th, Tr, Td } from "components/ui";
+import {useEffect, useState} from "react";
+import {Table, Card, THead, TBody, Th, Tr, Td, GhostSpinner} from "components/ui";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { Page } from "components/shared/Page";
 import { useLockScrollbar, useLocalStorage,useDidUpdate } from "hooks";
@@ -18,19 +18,23 @@ import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
 import { Toolbar } from "./Toolbar";
 import { columns } from "./columns";
-import { coursesList } from "./data";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBusinesses } from "../../../../store/slices/businessSlice";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export default function CoursesDatatable() {
+export default function BusinessDatatable() {
+
   const { cardSkin } = useThemeContext();
 
-  const [courses, setCourses] = useState([...coursesList]);
+  const dispatch = useDispatch();
+  const { businesses, loading, error } = useSelector((state) => state.businesses);
 
+  // All hooks here, always run:
   const [tableSettings, setTableSettings] = useState({
     enableFullScreen: false,
     enableRowDense: false,
@@ -43,19 +47,23 @@ export default function CoursesDatatable() {
   const [sorting, setSorting] = useState([]);
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage(
-    "column-visibility-courses",
-    {},
+      "column-visibility-courses",
+      {},
   );
 
   const [columnPinning, setColumnPinning] = useLocalStorage(
-    "column-pinning-courses",
-    {},
+      "column-pinning-courses",
+      {},
   );
 
-  const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
+  const [autoResetPageIndex] = useSkipper();
+
+  useEffect(() => {
+    dispatch(fetchBusinesses());
+  }, [dispatch]);
 
   const table = useReactTable({
-    data: courses,
+    data: businesses,
     columns: columns,
     state: {
       globalFilter,
@@ -66,21 +74,8 @@ export default function CoursesDatatable() {
       toolbarFilters,
     },
     meta: {
-      deleteRow: (row) => {
-        // Skip page index reset until after next rerender
-        skipAutoResetPageIndex();
-        setCourses((old) =>
-          old.filter((oldRow) => oldRow.course_id !== row.original.course_id),
-        );
-      },
-      deleteRows: (rows) => {
-        // Skip page index reset until after next rerender
-        skipAutoResetPageIndex();
-        const rowIds = rows.map((row) => row.original.course_id);
-        setCourses((old) =>
-          old.filter((row) => !rowIds.includes(row.course_id)),
-        );
-      },
+      deleteRow: () => {},
+      deleteRows: () => {},
       setTableSettings,
       setToolbarFilters,
     },
@@ -103,9 +98,23 @@ export default function CoursesDatatable() {
     autoResetPageIndex,
   });
 
-  useDidUpdate(() => table.resetRowSelection(), [courses]);
+  useDidUpdate(() => table.resetRowSelection(), [businesses]);
 
   useLockScrollbar(tableSettings.enableFullScreen);
+
+  if (loading) {
+    return (
+        <Page title="All Businesses">
+          <div className="flex min-h-[60vh] items-center justify-center">
+            <GhostSpinner />
+          </div>
+        </Page>
+    );
+  }
+
+  if (error) {
+    return <Page title="All Businesses"><div>Error: {error}</div></Page>;
+  }
 
   return (
     <Page title="All Businesses">
