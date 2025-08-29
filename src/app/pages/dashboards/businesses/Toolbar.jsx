@@ -103,11 +103,11 @@ function Filters({ table }) {
 
   return (
     <>
-        {toolbarFilters.includes("level") && table.getColumn("level") && (
-            <div style={{ order: toolbarFilters.indexOf("level") + 1 }}>
+        {toolbarFilters.includes("business_level") && table.getColumn("business_level") && (
+            <div style={{ order: toolbarFilters.indexOf("business_level") + 1 }}>
                 <FacedtedFilter
                     options={levelOptions}
-                    column={table.getColumn("level")}
+                    column={table.getColumn("business_level")}
                     title="Level"
                     Icon={ChartBarIcon}
                 />

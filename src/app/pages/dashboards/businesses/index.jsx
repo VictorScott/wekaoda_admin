@@ -23,7 +23,7 @@ import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBusinesses } from "../../../../store/slices/businessSlice";
+import {fetchBusinesses, updateBusinessStatus} from "../../../../store/slices/businessSlice";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -40,7 +40,7 @@ export default function BusinessDatatable() {
     enableRowDense: false,
   });
 
-  const [toolbarFilters, setToolbarFilters] = useState(["status"]);
+  const [toolbarFilters, setToolbarFilters] = useState(["business_level","status"]);
 
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -74,8 +74,13 @@ export default function BusinessDatatable() {
       toolbarFilters,
     },
     meta: {
-      deleteRow: () => {},
-      deleteRows: () => {},
+      toggleBusinessStatus: (row) => {
+        const id = row.original.business_id;
+        const currentStatus = row.original.status;
+        const newStatus = currentStatus === "active" ? "suspended" : "active";
+
+        dispatch(updateBusinessStatus({ business_id: id, status: newStatus }));
+      },
       setTableSettings,
       setToolbarFilters,
     },

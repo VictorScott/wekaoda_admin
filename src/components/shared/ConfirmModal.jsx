@@ -1,4 +1,3 @@
-// Import Dependencies
 import {
   Dialog,
   DialogPanel,
@@ -13,12 +12,8 @@ import {
 import clsx from "clsx";
 import merge from "lodash/merge";
 import { useRef } from "react";
-
-// Local Imports
 import { Button, GhostSpinner } from "components/ui";
 import { AnimatedTick } from "./AnimatedTick";
-
-// ----------------------------------------------------------------------
 
 const defaultMessages = {
   pending: {
