@@ -61,3 +61,48 @@ export const levelOptions = [
         color: 'success',
     }
 ];
+
+export function transformBusinessData(business) {
+    if (!business) {
+        return {
+            businessDetails: {},
+            businessAddress: {},
+            financialInfo: {},
+            directors_names: [],
+            kycDocuments: { docs: [] },
+        };
+    }
+
+    return {
+        businessDetails: {
+            businessName: business?.business_name || "",
+            registrationNumber: business?.registration_number || "",
+            natureOfBusiness: business?.nature_of_business || "",
+            countryOfRegistration: business?.country_of_registration || "",
+            dateOfRegistration: business?.date_of_registration || "",
+            businessType: business?.business_type || "",
+        },
+        businessAddress: {
+            registeredOffice: business?.registered_office || "",
+            registeredOfficeAddress: business?.registered_office_address || "",
+            postalAddress: business?.postal_address || "",
+            postalCode: business?.postal_code || "",
+            dialCode: business?.mobile_country_code || "",
+            phone: business?.mobile_number || "",
+            businessEmail: business?.business_email || "",
+            websiteUrl: business?.website_url || "",
+            address: business?.address || "",
+        },
+        financialInfo: {
+            source_of_wealth: business?.source_of_wealth || "",
+            source_of_funds: business?.source_of_funds || "",
+            expected_annual_turnover: business?.expected_annual_turnover || "",
+            tinNumber: business?.tin_number || "",
+        },
+        directors_names: business?.directors_names || [],
+        kycDocuments: {
+            docs: business?.kyc_docs || [],
+        },
+    };
+}
+

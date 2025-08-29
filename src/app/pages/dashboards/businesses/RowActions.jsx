@@ -1,3 +1,6 @@
+import { useCallback, useState } from "react";
+import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
 import {
   Menu,
   MenuButton,
@@ -14,12 +17,11 @@ import {
   PlayCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { useCallback, useState } from "react";
-import PropTypes from "prop-types";
+
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
-import { useDispatch } from "react-redux";
-import { updateBusinessStatus } from "store/slices/businessSlice";
+import {fetchBusinesses, updateBusinessStatus} from "store/slices/businessSlice";
+import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 
 export function RowActions({ row }) {
   const dispatch = useDispatch();
@@ -28,6 +30,9 @@ export function RowActions({ row }) {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [actionSuccess, setActionSuccess] = useState(false);
   const [actionError, setActionError] = useState(false);
+
+  // Modal state for business details
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
   const closeModal = () => {
     setActionModalOpen(false);
@@ -89,11 +94,12 @@ export function RowActions({ row }) {
                 className="absolute z-100 mt-1.5 min-w-[10rem] rounded-lg border border-gray-300 bg-white py-1 shadow-lg shadow-gray-200/50 outline-hidden focus-visible:outline-hidden dark:border-dark-500 dark:bg-dark-750 dark:shadow-none ltr:right-0 rtl:left-0"
             >
               <MenuItem>
-                {({ focus }) => (
+                {({ active }) => (
                     <button
+                        onClick={() => setDetailsModalOpen(true)}
                         className={clsx(
                             "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors",
-                            focus &&
+                            active &&
                             "bg-gray-100 text-gray-800 dark:bg-dark-600 dark:text-dark-100"
                         )}
                     >
@@ -104,13 +110,13 @@ export function RowActions({ row }) {
               </MenuItem>
 
               <MenuItem>
-                {({ focus }) => (
+                {({ active }) => (
                     <button
                         onClick={openModal}
                         className={clsx(
                             "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors",
                             actionColor,
-                            focus && actionBg
+                            active && actionBg
                         )}
                     >
                       <ActionIcon className="size-5" />
@@ -147,6 +153,16 @@ export function RowActions({ row }) {
               },
             }}
         />
+
+        {/* Business Details Modal */}
+        {detailsModalOpen && (
+            <BusinessDetailsModal
+                onClose={() => setDetailsModalOpen(false)}
+                businessData={row.original}
+                open={detailsModalOpen}
+                onReload={() => dispatch(fetchBusinesses())}
+            />
+        )}
       </>
   );
 }

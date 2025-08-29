@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from "../../utils/api.js";
 
-// Fetch businesses
+// Fetch businesses list
 export const fetchBusinesses = createAsyncThunk(
     "businesses/fetchAll",
     async (_, { rejectWithValue }) => {
@@ -14,19 +14,39 @@ export const fetchBusinesses = createAsyncThunk(
     }
 );
 
-// Toggle business status
+// Update business status
 export const updateBusinessStatus = createAsyncThunk(
     "businesses/updateStatus",
     async ({ business_id, status }, { rejectWithValue }) => {
         try {
-            const response = await API.post("/business/status", {
-                business_id,
-                status,
-            });
-            return {
-                business_id,
-                status: response.data.data.status || status,
-            };
+            const response = await API.post("/business/status", { business_id, status });
+            return { business_id, status: response.data.data.status || status };
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// KYC document status update
+export const updateKYCStatus = createAsyncThunk(
+    "businesses/updateKYCStatus",
+    async ({ doc_id, action, comments }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/kyc-doc-action", { doc_id, action, comments });
+            return response.data.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Business final review action
+export const submitBusinessReview = createAsyncThunk(
+    "businesses/submitReview",
+    async ({ business_id, action, comments }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/action", { business_id, action, comments });
+            return response.data.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -40,34 +60,64 @@ const businessSlice = createSlice({
         loading: false,
         error: null,
     },
-    reducers: {},
+    reducers: {
+        updateDocumentStatusInStore: (state, action) => {
+            const { businessId, docId, status } = action.payload;
+            const business = state.businesses.find((b) => b.business_id === businessId);
+            if (!business) {
+                console.warn(`Business not found: ${businessId}`);
+                return;
+            }
+            const doc = business.kyc_docs.find((d) => d.id === docId);
+            if (!doc) {
+                console.warn(`Document not found: ${docId}`);
+                return;
+            }
+            doc.approval_status = status;
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchBusinesses.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(fetchBusinesses.fulfilled, (state, action) => {
+            .addCase(fetchBusinesses.fulfilled, (state, { payload }) => {
                 state.loading = false;
-                state.businesses = action.payload;
+                state.businesses = payload;
             })
-            .addCase(fetchBusinesses.rejected, (state, action) => {
+            .addCase(fetchBusinesses.rejected, (state, { payload }) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = payload;
             })
 
-            // New: status update handling
-            .addCase(updateBusinessStatus.fulfilled, (state, action) => {
-                const { business_id, status } = action.payload;
-                const index = state.businesses.findIndex(b => b.business_id === business_id);
-                if (index !== -1) {
-                    state.businesses[index].status = status;
+            .addCase(updateBusinessStatus.fulfilled, (state, { payload }) => {
+                const { business_id, status } = payload;
+                const biz = state.businesses.find((b) => b.business_id === business_id);
+                if (biz) biz.status = status;
+            })
+
+            .addCase(updateKYCStatus.fulfilled, (state, { payload }) => {
+                const updatedDoc = payload;
+                const biz = state.businesses.find((b) =>
+                    b.kyc_docs.some((doc) => doc.doc_id === updatedDoc.doc_id)
+                );
+                if (biz) {
+                    const idx = biz.kyc_docs.findIndex((doc) => doc.doc_id === updatedDoc.doc_id);
+                    if (idx !== -1) biz.kyc_docs[idx] = updatedDoc;
                 }
             })
-            .addCase(updateBusinessStatus.rejected, (state, action) => {
-                state.error = action.payload;
+
+            .addCase(submitBusinessReview.fulfilled, (state, { payload }) => {
+                const { business_id, status: reviewStatus } = payload;
+                const biz = state.businesses.find((b) => b.business_id === business_id);
+                if (biz) biz.status = reviewStatus;
+            })
+            .addMatcher((action) => action.type.endsWith("/rejected"), (state, { payload }) => {
+                state.error = payload || "An error occurred";
             });
     },
 });
 
+export const { updateDocumentStatusInStore } = businessSlice.actions;
 export default businessSlice.reducer;
