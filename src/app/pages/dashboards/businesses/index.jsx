@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-table";
 import clsx from "clsx";
 import {useEffect, useState} from "react";
-import {Table, Card, THead, TBody, Th, Tr, Td, GhostSpinner} from "components/ui";
+import {Table, Card, THead, TBody, Th, Tr, Td, Spinner} from "components/ui";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { Page } from "components/shared/Page";
 import { useLockScrollbar, useLocalStorage,useDidUpdate } from "hooks";
@@ -104,7 +104,7 @@ export default function BusinessDatatable() {
     return (
         <Page title="All Businesses">
           <div className="flex min-h-[60vh] items-center justify-center">
-            <GhostSpinner />
+            <Spinner color="primary" />
           </div>
         </Page>
     );

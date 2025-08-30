@@ -239,16 +239,16 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                                             : "bg-yellow-500";
 
                                                 return (
-                                                    <tr key={idx} className="border-b last:border-b-0">
+                                                    <tr key={idx} className="border-b border-gray-200 dark:border-dark-500 last:border-b-0">
                                                         <td className="py-2 pr-4 text-sm font-medium">
                                                             {doc.doc_name}
                                                         </td>
                                                         <td className="py-2 pr-4 text-sm">
-                                <span
-                                    className={`text-white text-xs px-2 py-1 rounded-full ${badgeColor}`}
-                                >
-                                  {doc.approval_status || "Pending"}
-                                </span>
+                                                            <span
+                                                                className={`text-white text-xs px-2 py-1 rounded-full ${badgeColor}`}
+                                                            >
+                                                              {doc.approval_status || "Pending"}
+                                                            </span>
                                                         </td>
                                                         <td className="py-2">
                                                             {doc.file || doc.url ? (
@@ -270,8 +270,8 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                                                 </>
                                                             ) : (
                                                                 <span className="text-sm italic text-gray-500">
-                                    No file
-                                  </span>
+                                                                  No file
+                                                                </span>
                                                             )}
                                                         </td>
                                                     </tr>

@@ -10,6 +10,7 @@ import {
     TransitionChild,
 } from "@headlessui/react";
 import { Fragment, useState } from "react";
+import { XMarkIcon } from "@heroicons/react/24/outline"; // Import the X icon
 import PropTypes from "prop-types";
 
 export default function DocumentReviewModal({ open, onClose, document, fileUrl, fileType }) {
@@ -114,66 +115,88 @@ export default function DocumentReviewModal({ open, onClose, document, fileUrl, 
                         leaveFrom="opacity-100 scale-100"
                         leaveTo="opacity-0 scale-95"
                     >
-                        <DialogPanel className="scrollbar-sm relative max-w-5xl w-full max-h-[90vh] flex flex-col overflow-y-auto rounded-lg bg-white px-6 py-8 dark:bg-dark-700 transition-all duration-300">
-                            <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-dark-100">{document.doc_name}</DialogTitle>
+                        <DialogPanel className="relative w-full max-w-4xl bg-white rounded-lg dark:bg-dark-700">
 
-                            <div className="mb-6 flex justify-center">
-                                {fileType === "application/pdf" ? (
-                                    <iframe
-                                        src={fileUrl}
-                                        title={document.doc_name}
-                                        className="w-full min-h-[50vh] max-h-[60vh]"
-                                    />
-                                ) : (
-                                    <img
-                                        src={fileUrl}
-                                        alt={document.doc_name}
-                                        className="max-w-full max-h-[60vh] object-contain"
-                                    />
-                                )}
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between bg-gray-200 px-4 py-3 rounded-t-lg dark:bg-dark-800">
+                                <DialogTitle className="text-2xl font-semibold text-gray-800 dark:text-dark-100">
+                                    {document.doc_name}
+                                </DialogTitle>
+
+                                {/* Close Button with X Icon */}
+                                <Button
+                                    onClick={onClose}
+                                    variant="flat"
+                                    isIcon
+                                    className="size-7 rounded-full p-1 text-gray-600 hover:text-gray-800 dark:text-dark-200 dark:hover:text-white"
+                                >
+                                    <XMarkIcon className="w-5 h-5" /> {/* X Icon */}
+                                </Button>
                             </div>
 
-                            <div className="space-y-4">
-                                <div className="flex space-x-6">
-                                    <Radio
-                                        label="Approved"
-                                        name="review-status"
-                                        value="approved"
-                                        checked={status === "approved"}
-                                        onChange={() => setStatus("approved")}
-                                    />
-                                    <Radio
-                                        label="Declined"
-                                        name="review-status"
-                                        value="declined"
-                                        checked={status === "declined"}
-                                        onChange={() => setStatus("declined")}
-                                    />
+                            {/* Modal Body */}
+                            <div className="px-6 py-4">
+                                {/* File Preview Section */}
+                                <div className="mb-4 flex justify-center">
+                                    {fileType === "application/pdf" ? (
+                                        <iframe
+                                            src={fileUrl}
+                                            title={document.doc_name}
+                                            className="w-full min-h-[50vh] max-h-[60vh]"
+                                        />
+                                    ) : (
+                                        <img
+                                            src={fileUrl}
+                                            alt={document.doc_name}
+                                            className="max-w-full max-h-[60vh] object-contain"
+                                        />
+                                    )}
                                 </div>
 
-                                <Textarea
-                                    label="Comments"
-                                    placeholder="Enter comments here..."
-                                    value={comments}
-                                    onChange={(e) => setComments(e.target.value)}
-                                    rows={5}
-                                />
+                                {/* Status Selection and Comments */}
+                                <div className="space-y-4">
+                                    <div className="flex space-x-6">
+                                        <Radio
+                                            label="Approved"
+                                            name="review-status"
+                                            value="approved"
+                                            checked={status === "approved"}
+                                            onChange={() => setStatus("approved")}
+                                        />
+                                        <Radio
+                                            label="Declined"
+                                            name="review-status"
+                                            value="declined"
+                                            checked={status === "declined"}
+                                            onChange={() => setStatus("declined")}
+                                        />
+                                    </div>
 
-                                {validationError && (
-                                    <div className="text-red-500 text-sm">{validationError}</div>
-                                )}
+                                    <Textarea
+                                        label="Comments"
+                                        placeholder="Enter comments here..."
+                                        value={comments}
+                                        onChange={(e) => setComments(e.target.value)}
+                                        rows={5}
+                                    />
 
-                                <div className="flex justify-end space-x-3 pt-4">
-                                    <Button onClick={onClose} variant="flat" disabled={submitting}>
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        onClick={handleSubmit}
-                                        color={status === "approved" ? "success" : "error"}
-                                        disabled={submitting}
-                                    >
-                                        {status === "approved" ? "Approve" : "Decline"}
-                                    </Button>
+                                    {validationError && (
+                                        <div className="text-red-500 text-sm">{validationError}</div>
+                                    )}
+
+                                    {/* Action Buttons */}
+                                    <div className="flex justify-end space-x-3 pt-4">
+                                        <Button onClick={onClose} variant="flat" disabled={submitting}>
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={handleSubmit}
+                                            color={status === "approved" ? "success" : "error"}
+                                            disabled={submitting}
+                                        >
+                                            {status === "approved" ? "Approve" : "Decline"}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                         </DialogPanel>
