@@ -187,7 +187,7 @@ export default function DocumentReviewModal({ open, onClose, document, fileUrl, 
                                     {/* Action Buttons */}
                                     <div className="flex justify-end space-x-3 pt-4">
                                         <Button onClick={onClose} variant="flat" disabled={submitting}>
-                                            Cancel
+                                            Close
                                         </Button>
                                         <Button
                                             onClick={handleSubmit}
