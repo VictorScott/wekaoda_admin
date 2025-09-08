@@ -6,6 +6,13 @@ export const locales = {
         i18n: () => import("./locales/en/translations.json"),
         flag: 'united-kingdom'
     },
+    sw: {
+        label: "Swahili",
+        dayjs: () => import('dayjs/locale/sw'),
+        flatpickr: null,
+        i18n: () => import("./locales/sw/translations.json"),
+        flag: 'tanzania'
+    },
     ar: {
         label: "Arabic",
         dayjs: () => import('dayjs/locale/ar'),

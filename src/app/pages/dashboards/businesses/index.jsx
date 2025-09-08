@@ -32,7 +32,7 @@ export default function BusinessDatatable() {
   const { cardSkin } = useThemeContext();
 
   const dispatch = useDispatch();
-  const { businesses, loading, error } = useSelector((state) => state.businesses);
+  const { businesses, initialLoading, refreshing, error } = useSelector((state) => state.businesses);
 
   // All hooks here, always run:
   const [tableSettings, setTableSettings] = useState({
@@ -100,9 +100,9 @@ export default function BusinessDatatable() {
 
   useLockScrollbar(tableSettings.enableFullScreen);
 
-  if (loading) {
+  if (initialLoading) {
     return (
-        <Page title="All Businesses">
+        <Page title="Businesses">
           <div className="flex min-h-[60vh] items-center justify-center">
             <Spinner color="primary" />
           </div>
@@ -111,11 +111,11 @@ export default function BusinessDatatable() {
   }
 
   if (error) {
-    return <Page title="All Businesses"><div>Error: {error}</div></Page>;
+    return <Page title="Businesses"><div>Error: {error}</div></Page>;
   }
 
   return (
-    <Page title="All Businesses">
+    <Page title="Businesses">
       <div className="transition-content w-full pb-5">
         <div
           className={clsx(
@@ -124,7 +124,7 @@ export default function BusinessDatatable() {
               "fixed inset-0 z-61 bg-white pt-3 dark:bg-dark-900",
           )}
         >
-          <Toolbar table={table} />
+          <Toolbar table={table} refreshing={refreshing} />
           <div
             className={clsx(
               "transition-content flex grow flex-col pt-3",

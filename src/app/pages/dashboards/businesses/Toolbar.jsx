@@ -1,6 +1,7 @@
 import {
   CheckCircleIcon,
   MagnifyingGlassIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {
@@ -9,7 +10,9 @@ import {
 import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
-import { Button, Input } from "components/ui";
+import { Button, Input, GhostSpinner } from "components/ui";
+import { useDispatch } from "react-redux";
+import { fetchBusinesses } from "store/slices/businessSlice";
 import { TableConfig } from "./TableConfig";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 import {
@@ -19,9 +22,15 @@ import {
     verificationOptions,
 } from "./data";
 
-export function Toolbar({ table }) {
+export function Toolbar({ table, refreshing = false }) {
   const { isXs } = useBreakpointsContext();
+  const dispatch = useDispatch();
   const isFullScreenEnabled = table.getState().tableSettings.enableFullScreen;
+
+  const handleRefresh = () => {
+    dispatch(fetchBusinesses());
+  };
+
 
   return (
     <div className="table-toolbar">
@@ -31,10 +40,28 @@ export function Toolbar({ table }) {
           isFullScreenEnabled ? "px-4 sm:px-5" : "px-(--margin-x) pt-4",
         )}
       >
-        <div className="min-w-0">
+        <div className="min-w-0 flex items-center gap-3">
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
-            All Businesses
+            Businesses
           </h2>
+          {refreshing && (
+            <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+              <GhostSpinner className="size-4" />
+              <span className="text-xs">Refreshing...</span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            variant="outlined"
+            className="h-8 space-x-1.5 rounded-md px-3 text-xs"
+            title="Refresh businesses list"
+          >
+            <ArrowPathIcon className={clsx("size-4", refreshing && "animate-spin")} />
+            <span>Refresh</span>
+          </Button>
         </div>
       </div>
 
@@ -154,7 +181,8 @@ function Filters({ table }) {
 }
 
 Toolbar.propTypes = {
-  table: PropTypes.object,
+  table: PropTypes.object.isRequired,
+  refreshing: PropTypes.bool,
 };
 
 SearchInput.propTypes = {

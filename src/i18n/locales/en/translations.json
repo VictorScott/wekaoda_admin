@@ -3,7 +3,8 @@
     "dashboards": {
       "dashboards": "Dashboard",
       "home": "Home",
-      "businesses": "All Businesses"
+      "businesses": "Businesses",
+      "users": "Users"
     },
     "settings": {
       "settings": "Settings",

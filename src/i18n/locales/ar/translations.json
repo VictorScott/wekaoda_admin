@@ -2,7 +2,9 @@
   "nav": {
     "dashboards": {
       "dashboards": "لوحات التحكم",
-      "home": "الرئيسية"
+      "home": "الرئيسية",
+      "businesses": "الأعمال",
+      "users": "المستخدمين"
     },
     "settings": {
       "settings": "الإعدادات",

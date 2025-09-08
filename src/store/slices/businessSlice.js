@@ -57,7 +57,10 @@ const businessSlice = createSlice({
     name: "businesses",
     initialState: {
         businesses: [],
-        loading: false,
+        // Separate loading states for better UX
+        initialLoading: false,    // For initial table load
+        refreshing: false,        // For table refresh operations
+        actionLoading: {},        // For individual row actions (by business ID)
         error: null,
     },
     reducers: {
@@ -75,20 +78,44 @@ const businessSlice = createSlice({
             }
             doc.approval_status = status;
         },
+        clearError: (state) => {
+            state.error = null;
+        },
+        setActionLoading: (state, action) => {
+            const { businessId, loading } = action.payload;
+            if (loading) {
+                state.actionLoading[businessId] = true;
+            } else {
+                delete state.actionLoading[businessId];
+            }
+        },
+        clearActionLoading: (state) => {
+            state.actionLoading = {};
+        },
+        setRefreshing: (state, action) => {
+            state.refreshing = action.payload;
+        },
     },
     extraReducers: (builder) => {
         builder
+            // Fetch Businesses - Use initialLoading/refreshing based on whether businesses exist
             .addCase(fetchBusinesses.pending, (state) => {
-                state.loading = true;
+                if (state.businesses.length === 0) {
+                    state.initialLoading = true;
+                } else {
+                    state.refreshing = true;
+                }
                 state.error = null;
             })
             .addCase(fetchBusinesses.fulfilled, (state, { payload }) => {
-                state.loading = false;
+                state.initialLoading = false;
+                state.refreshing = false;
                 state.businesses = payload;
             })
             .addCase(fetchBusinesses.rejected, (state, { payload }) => {
-                state.loading = false;
-                state.error = payload;
+                state.initialLoading = false;
+                state.refreshing = false;
+                state.error = payload || "An error occurred while fetching businesses.";
             })
 
             .addCase(updateBusinessStatus.fulfilled, (state, { payload }) => {
@@ -119,5 +146,5 @@ const businessSlice = createSlice({
     },
 });
 
-export const { updateDocumentStatusInStore } = businessSlice.actions;
+export const { updateDocumentStatusInStore, clearError, setActionLoading, clearActionLoading, setRefreshing } = businessSlice.actions;
 export default businessSlice.reducer;

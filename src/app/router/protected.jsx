@@ -34,6 +34,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/businesses")).default,
               }),
             },
+            {
+              path: "users",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/users")).default,
+              }),
+            },
           ],
         },
       ],

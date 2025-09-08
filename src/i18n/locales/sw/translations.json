@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "dashboards": {
+      "dashboards": "Dashibodi",
+      "home": "Nyumbani",
+      "businesses": "Biashara",
+      "users": "Watumiaji"
+    },
+    "settings": {
+      "settings": "Mipangilio",
+      "general": "Kijumla",
+      "appearance": "Mwonekano"
+    }
+  }
+}
