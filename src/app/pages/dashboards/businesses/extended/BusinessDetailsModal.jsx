@@ -319,7 +319,7 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                         )}
 
                                         <div className="flex justify-end gap-3">
-                                            <Button onClick={onClose} variant="flat">
+                                            <Button onClick={onClose} variant="outlined">
                                                 Close
                                             </Button>
                                             <Button

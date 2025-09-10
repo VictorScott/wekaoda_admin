@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   Menu,
   MenuButton,
@@ -17,57 +17,60 @@ import {
   PlayCircleIcon,
 } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import { toast } from "sonner";
-import { Button, GhostSpinner } from "components/ui";
+import { Button } from "components/ui";
+import { ConfirmModal } from "components/shared/ConfirmModal";
 import AddEditUserModal from "./extended/AddEditUserModal.jsx";
-import {fetchUsers, updateUserStatus, setActionLoading} from "store/slices/usersSlice";
+import {fetchUsers, updateUserStatus} from "store/slices/usersSlice";
 
 export function RowActions({ row, onSuccess }) {
 
   const dispatch = useDispatch();
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const { actionLoading } = useSelector((state) => state.users);
   
-  const userId = row.original.id;
-  const isActionLoading = actionLoading[userId];
+  const [actionModalOpen, setActionModalOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [actionSuccess, setActionSuccess] = useState(false);
+  const [actionError, setActionError] = useState(false);
+
+  const closeModal = () => {
+    setActionModalOpen(false);
+    setActionError(false);
+    setActionSuccess(false);
+  };
+
+  const openModal = () => {
+    setActionModalOpen(true);
+    setActionError(false);
+    setActionSuccess(false);
+  };
 
   const handleStatusToggle = useCallback(async () => {
-    const currentStatus = row.original.status;
-    const newStatus = currentStatus === "active" ? "suspended" : "active";
-    const actionText = newStatus === "active" ? "activated" : "suspended";
+    setConfirmLoading(true);
+    try {
+      const currentStatus = row.original.status;
+      const newStatus = currentStatus === "active" ? "suspended" : "active";
+      const userId = row.original.id;
 
-    // Set loading state for this specific user
-    dispatch(setActionLoading({ userId, loading: true }));
-
-    const statusPromise = dispatch(
+      await dispatch(
         updateUserStatus({
           user_id: userId,
           status: newStatus,
         })
-    ).unwrap().then(async () => {
+      ).unwrap();
+      
+      setActionSuccess(true);
       // Refresh the table data on success
       await dispatch(fetchUsers());
       onSuccess?.();
-    }).finally(() => {
-      // Clear loading state
-      dispatch(setActionLoading({ userId, loading: false }));
-    });
+    } catch (error) {
+      console.error('User status update error:', error);
+      setActionError(true);
+    } finally {
+      setConfirmLoading(false);
+    }
+  }, [dispatch, row, onSuccess]);
 
-    // Use toast.promise for better UX
-    toast.promise(statusPromise, {
-      loading: `${newStatus === "active" ? "Activating" : "Suspending"} user...`,
-      success: `User ${actionText} successfully!`,
-      error: (error) => {
-        const errors = error?.errors;
-        if (errors) {
-          return Object.values(errors).flat()[0] || "Something went wrong.";
-        }
-        return error?.message || "Something went wrong.";
-      },
-    });
-
-  }, [dispatch, row, onSuccess, userId]);
-
+  const state = actionError ? "error" : actionSuccess ? "success" : "pending";
   const isActive = row.original.status === "active";
   const actionLabel = isActive ? "Suspend" : "Activate";
   const ActionIcon = isActive ? PauseCircleIcon : PlayCircleIcon;
@@ -118,32 +121,46 @@ export function RowActions({ row, onSuccess }) {
               <MenuItem>
                 {({ active }) => (
                     <button
-                        onClick={handleStatusToggle}
-                        disabled={isActionLoading}
+                        onClick={openModal}
                         className={clsx(
                             "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors",
                             actionColor,
-                            active && actionBg,
-                            isActionLoading && "opacity-50 cursor-not-allowed"
+                            active && actionBg
                         )}
                     >
-                      {isActionLoading ? (
-                          <GhostSpinner className="size-4" />
-                      ) : (
-                          <ActionIcon className="size-5" />
-                      )}
-                      <span>
-                        {isActionLoading 
-                            ? `${isActive ? "Suspending" : "Activating"}...` 
-                            : actionLabel
-                        }
-                      </span>
+                      <ActionIcon className="size-5" />
+                      <span>{actionLabel}</span>
                     </button>
                 )}
               </MenuItem>
             </Transition>
           </Menu>
         </div>
+
+        <ConfirmModal
+          show={actionModalOpen}
+          onClose={closeModal}
+          onOk={handleStatusToggle}
+          confirmLoading={confirmLoading}
+          state={state}
+          messages={{
+            pending: {
+              title: `${actionLabel} User`,
+              description: `Are you sure you want to ${actionLabel.toLowerCase()} ${row.original.name}?`,
+              actionText: actionLabel,
+            },
+            success: {
+              title: `User ${isActive ? "Suspended" : "Activated"}`,
+              description: `${row.original.name} has been successfully ${isActive ? "suspended" : "activated"}.`,
+              actionText: "Done",
+            },
+            error: {
+              title: "Operation Failed",
+              description: "Something went wrong while updating the user status. Please try again.",
+              actionText: "Retry",
+            },
+          }}
+        />
 
         <AddEditUserModal
           open={editModalOpen}

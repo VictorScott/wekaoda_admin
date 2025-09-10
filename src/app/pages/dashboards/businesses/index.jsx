@@ -57,9 +57,13 @@ export default function BusinessDatatable() {
   );
 
   const [autoResetPageIndex] = useSkipper();
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchBusinesses());
+    dispatch(fetchBusinesses())
+      .then(() => {
+        setLastUpdated(new Date());
+      });
   }, [dispatch]);
 
   const table = useReactTable({
@@ -124,7 +128,7 @@ export default function BusinessDatatable() {
               "fixed inset-0 z-61 bg-white pt-3 dark:bg-dark-900",
           )}
         >
-          <Toolbar table={table} refreshing={refreshing} />
+          <Toolbar table={table} refreshing={refreshing} lastUpdated={lastUpdated} />
           <div
             className={clsx(
               "transition-content flex grow flex-col pt-3",
@@ -195,9 +199,40 @@ export default function BusinessDatatable() {
                     ))}
                   </THead>
                   <TBody>
-                    {table.getRowModel().rows.map((row) => {
-                      return (
-                        <Tr
+                    {table.getRowModel().rows.length === 0 ? (
+                      <Tr>
+                        <Td colSpan={columns.length} className="h-[400px] text-center">
+                          <div className="flex flex-col items-center justify-center space-y-3">
+                            <div className="rounded-full bg-gray-100 p-8 dark:bg-dark-700">
+                              <svg
+                                className="h-12 w-12 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1}
+                                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                />
+                              </svg>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-lg font-medium text-gray-700 dark:text-dark-50">
+                                No businesses found
+                              </p>
+                              <p className="text-sm text-gray-500 dark:text-dark-200">
+                                No businesses have been registered yet.
+                              </p>
+                            </div>
+                          </div>
+                        </Td>
+                      </Tr>
+                    ) : (
+                      table.getRowModel().rows.map((row) => {
+                        return (
+                          <Tr
                           key={row.id}
                           className={clsx(
                             "relative border-y border-transparent border-b-gray-200 dark:border-b-dark-500",
@@ -247,8 +282,9 @@ export default function BusinessDatatable() {
                               );
                             })}
                         </Tr>
-                      );
-                    })}
+                          );
+                        })
+                      )}
                   </TBody>
                 </Table>
               </div>

@@ -57,9 +57,13 @@ export default function UserDatatable() {
   );
 
   const [autoResetPageIndex] = useSkipper();
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchUsers());
+    dispatch(fetchUsers())
+      .then(() => {
+        setLastUpdated(new Date());
+      });
   }, [dispatch]);
 
   const table = useReactTable({
@@ -128,7 +132,7 @@ export default function UserDatatable() {
                   "fixed inset-0 z-61 bg-white pt-3 dark:bg-dark-900"
               )}
           >
-            <Toolbar table={table} refreshing={refreshing} />
+            <Toolbar table={table} refreshing={refreshing} lastUpdated={lastUpdated} />
             <div
                 className={clsx(
                     "transition-content flex grow flex-col pt-3",
@@ -199,8 +203,39 @@ export default function UserDatatable() {
                       ))}
                     </THead>
                     <TBody>
-                      {table.getRowModel().rows.map((row) => {
-                        return (
+                      {table.getRowModel().rows.length === 0 ? (
+                        <Tr>
+                          <Td colSpan={columns.length} className="h-[400px] text-center">
+                            <div className="flex flex-col items-center justify-center space-y-3">
+                              <div className="rounded-full bg-gray-100 p-8 dark:bg-dark-700">
+                                <svg
+                                  className="h-12 w-12 text-gray-400"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={1}
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                                  />
+                                </svg>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-lg font-medium text-gray-700 dark:text-dark-50">
+                                  No users found
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-dark-200">
+                                  No users have been registered in the system yet.
+                                </p>
+                              </div>
+                            </div>
+                          </Td>
+                        </Tr>
+                      ) : (
+                        table.getRowModel().rows.map((row) => {
+                          return (
                             <Tr
                                 key={row.id}
                                 className={clsx(
@@ -251,8 +286,9 @@ export default function UserDatatable() {
                                     );
                                   })}
                             </Tr>
-                        );
-                      })}
+                            );
+                        })
+                      )}
                     </TBody>
                   </Table>
                 </div>

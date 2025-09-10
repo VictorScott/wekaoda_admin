@@ -7,6 +7,7 @@ import clsx from "clsx";
 import {
   ChartBarIcon,
 } from "@heroicons/react/20/solid";
+import { useState } from "react";
 import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
@@ -22,13 +23,20 @@ import {
     verificationOptions,
 } from "./data";
 
-export function Toolbar({ table, refreshing = false }) {
+export function Toolbar({ table, refreshing = false, lastUpdated = null }) {
   const { isXs } = useBreakpointsContext();
   const dispatch = useDispatch();
   const isFullScreenEnabled = table.getState().tableSettings.enableFullScreen;
+  const [lastRefreshTime, setLastRefreshTime] = useState(null);
+  
+  // Use the most recent time between lastUpdated (initial load) and lastRefreshTime (manual refresh)
+  const displayTime = lastRefreshTime || lastUpdated;
 
   const handleRefresh = () => {
-    dispatch(fetchBusinesses());
+    dispatch(fetchBusinesses())
+      .then(() => {
+        setLastRefreshTime(new Date());
+      });
   };
 
 
@@ -44,10 +52,14 @@ export function Toolbar({ table, refreshing = false }) {
           <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
             Businesses
           </h2>
-          {refreshing && (
+          {refreshing ? (
             <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
               <GhostSpinner className="size-4" />
               <span className="text-xs">Refreshing...</span>
+            </div>
+          ) : displayTime && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Last updated: {displayTime.toLocaleTimeString()}
             </div>
           )}
         </div>

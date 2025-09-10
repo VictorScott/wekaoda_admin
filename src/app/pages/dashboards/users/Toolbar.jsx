@@ -17,13 +17,17 @@ import AddEditUserModal from "./extended/AddEditUserModal.jsx";
 import { useDispatch } from "react-redux";
 import { fetchUsers } from "store/slices/usersSlice";
 
-export function Toolbar({ table, refreshing = false }) {
+export function Toolbar({ table, refreshing = false, lastUpdated = null }) {
 
     const { isXs } = useBreakpointsContext();
     const dispatch = useDispatch();
     const isFullScreenEnabled = table.getState().tableSettings.enableFullScreen;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editUser, setEditUser] = useState(null);
+    const [lastRefreshTime, setLastRefreshTime] = useState(null);
+    
+    // Use the most recent time between lastUpdated (initial load) and lastRefreshTime (manual refresh)
+    const displayTime = lastRefreshTime || lastUpdated;
 
     const openAddUserModal = () => {
         setEditUser(null);
@@ -35,7 +39,10 @@ export function Toolbar({ table, refreshing = false }) {
     };
 
     const handleRefresh = () => {
-        dispatch(fetchUsers());
+        dispatch(fetchUsers())
+            .then(() => {
+                setLastRefreshTime(new Date());
+            });
     };
 
     const onSuccess = () => {
@@ -55,10 +62,14 @@ export function Toolbar({ table, refreshing = false }) {
                         <h2 className="truncate text-xl font-medium tracking-wide text-gray-800 dark:text-dark-50">
                             Users
                         </h2>
-                        {refreshing && (
+                        {refreshing ? (
                             <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
                                 <GhostSpinner className="size-4" />
                                 <span className="text-xs">Refreshing...</span>
+                            </div>
+                        ) : displayTime && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                                Last updated: {displayTime.toLocaleTimeString()}
                             </div>
                         )}
                     </div>
