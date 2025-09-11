@@ -136,9 +136,13 @@ const businessSlice = createSlice({
             })
 
             .addCase(submitBusinessReview.fulfilled, (state, { payload }) => {
-                const { business_id, status: reviewStatus } = payload;
+                const { business_id, verification_status } = payload;
                 const biz = state.businesses.find((b) => b.business_id === business_id);
-                if (biz) biz.status = reviewStatus;
+                if (biz) {
+                    biz.verification_status = verification_status;
+                    // Update status based on verification
+                    biz.status = verification_status === 'verified' ? 'active' : 'suspended';
+                }
             })
             .addMatcher((action) => action.type.endsWith("/rejected"), (state, { payload }) => {
                 state.error = payload || "An error occurred";
@@ -147,4 +151,44 @@ const businessSlice = createSlice({
 });
 
 export const { updateDocumentStatusInStore, clearError, setActionLoading, clearActionLoading, setRefreshing } = businessSlice.actions;
+
+// Selectors
+export const selectBusinesses = (state) => state.businesses.businesses;
+export const selectBusinessLoading = (state) => state.businesses.initialLoading;
+export const selectBusinessRefreshing = (state) => state.businesses.refreshing;
+export const selectBusinessError = (state) => state.businesses.error;
+
+// Helper function to check if a business is declared
+export const isBusinessDeclared = (business) => {
+    return business?.declared_by && business?.declared_on;
+};
+
+// Helper function to check if suspend/activate actions should be shown
+export const canShowStatusActions = (business) => {
+    const isDeclared = isBusinessDeclared(business);
+    const isVerified = business?.verification_status === 'verified';
+    
+    if (isDeclared) {
+        // For declared businesses, only show suspend/activate if verified
+        return isVerified;
+    } else {
+        // For non-declared businesses, show suspend/activate only if not pending
+        return business?.verification_status !== 'pending';
+    }
+};
+
+// Helper function to check if verification actions should be shown in modal
+export const canShowVerificationActions = (business) => {
+    const isDeclared = isBusinessDeclared(business);
+    const isVerified = business?.verification_status === 'verified';
+    
+    if (isDeclared) {
+        // For declared businesses, only show verification if not yet verified
+        return !isVerified;
+    } else {
+        // For non-declared businesses, always show verification options
+        return true;
+    }
+};
+
 export default businessSlice.reducer;

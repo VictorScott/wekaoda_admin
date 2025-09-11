@@ -20,7 +20,7 @@ import clsx from "clsx";
 
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
-import {fetchBusinesses, updateBusinessStatus} from "store/slices/businessSlice";
+import {fetchBusinesses, updateBusinessStatus, canShowStatusActions} from "store/slices/businessSlice";
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 
 export function RowActions({ row }) {
@@ -62,6 +62,9 @@ export function RowActions({ row }) {
       setConfirmLoading(false);
     }
   }, [dispatch, row]);
+
+  // Check if suspend/activate actions should be shown
+  const canShowActions = canShowStatusActions(row.original);
 
   const state = actionError ? "error" : actionSuccess ? "success" : "pending";
   const isActive = row.original.status === "active";
@@ -109,21 +112,24 @@ export function RowActions({ row }) {
                 )}
               </MenuItem>
 
-              <MenuItem>
-                {({ active }) => (
-                    <button
-                        onClick={openModal}
-                        className={clsx(
-                            "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors",
-                            actionColor,
-                            active && actionBg
-                        )}
-                    >
-                      <ActionIcon className="size-5" />
-                      <span>{actionLabel}</span>
-                    </button>
-                )}
-              </MenuItem>
+              {/* Status Action - Only show if actions are allowed */}
+              {canShowActions && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={openModal}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors",
+                              actionColor,
+                              active && actionBg
+                          )}
+                      >
+                        <ActionIcon className="size-5" />
+                        <span>{actionLabel}</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
             </Transition>
           </Menu>
         </div>

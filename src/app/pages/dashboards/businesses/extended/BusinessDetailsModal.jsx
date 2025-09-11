@@ -10,7 +10,7 @@ import { Fragment, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { Button, Radio, Textarea } from "components/ui";
-import { submitBusinessReview } from "store/slices/businessSlice";
+import { submitBusinessReview, canShowVerificationActions } from "store/slices/businessSlice";
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import DocumentReviewModal from "./DocumentReviewModal";
 import { FILE_URL } from "../../../../../configs/auth.config";
@@ -286,56 +286,67 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                     )}
                                 </Section>
 
-                                {/* Review Action */}
-                                <Section title="Business Review">
-                                    <div className="space-y-4">
-                                        <div className="flex gap-6">
-                                            <Radio
-                                                label="Verified"
-                                                name="business-review-status"
-                                                value="verified"
-                                                checked={reviewStatus === "verified"}
-                                                onChange={() => setReviewStatus("verified")}
+                                {/* Review Action - Only show if verification actions are allowed */}
+                                {canShowVerificationActions(businessData) && (
+                                    <Section title="Business Review">
+                                        <div className="space-y-4">
+                                            <div className="flex gap-6">
+                                                <Radio
+                                                    label="Verified"
+                                                    name="business-review-status"
+                                                    value="verified"
+                                                    checked={reviewStatus === "verified"}
+                                                    onChange={() => setReviewStatus("verified")}
+                                                />
+                                                <Radio
+                                                    label="Declined"
+                                                    name="business-review-status"
+                                                    value="declined"
+                                                    checked={reviewStatus === "declined"}
+                                                    onChange={() => setReviewStatus("declined")}
+                                                />
+                                            </div>
+
+                                            <Textarea
+                                                label="Comment"
+                                                placeholder="Enter comment..."
+                                                value={reviewComment}
+                                                onChange={(e) => setReviewComment(e.target.value)}
+                                                rows={4}
                                             />
-                                            <Radio
-                                                label="Declined"
-                                                name="business-review-status"
-                                                value="declined"
-                                                checked={reviewStatus === "declined"}
-                                                onChange={() => setReviewStatus("declined")}
-                                            />
+
+                                            {validationError && (
+                                                <p className="text-sm text-red-500">{validationError}</p>
+                                            )}
+
+                                            <div className="flex justify-end gap-3">
+                                                <Button onClick={onClose} variant="outlined">
+                                                    Close
+                                                </Button>
+                                                <Button
+                                                    onClick={handleReviewSubmit}
+                                                    color={reviewStatus === "verified" ? "success" : "error"}
+                                                    disabled={submitting}
+                                                >
+                                                    {submitting
+                                                        ? "Submitting..."
+                                                        : reviewStatus === "verified"
+                                                            ? "Approve"
+                                                            : "Decline"}
+                                                </Button>
+                                            </div>
                                         </div>
+                                    </Section>
+                                )}
 
-                                        <Textarea
-                                            label="Comment"
-                                            placeholder="Enter comment..."
-                                            value={reviewComment}
-                                            onChange={(e) => setReviewComment(e.target.value)}
-                                            rows={4}
-                                        />
-
-                                        {validationError && (
-                                            <p className="text-sm text-red-500">{validationError}</p>
-                                        )}
-
-                                        <div className="flex justify-end gap-3">
-                                            <Button onClick={onClose} variant="outlined">
-                                                Close
-                                            </Button>
-                                            <Button
-                                                onClick={handleReviewSubmit}
-                                                color={reviewStatus === "verified" ? "success" : "error"}
-                                                disabled={submitting}
-                                            >
-                                                {submitting
-                                                    ? "Submitting..."
-                                                    : reviewStatus === "verified"
-                                                        ? "Approve"
-                                                        : "Decline"}
-                                            </Button>
-                                        </div>
+                                {/* Show close button if verification actions are not allowed */}
+                                {!canShowVerificationActions(businessData) && (
+                                    <div className="flex justify-end pt-4">
+                                        <Button onClick={onClose} variant="outlined">
+                                            Close
+                                        </Button>
                                     </div>
-                                </Section>
+                                )}
                             </div>
                         </DialogPanel>
                     </TransitionChild>
