@@ -6,6 +6,7 @@ import {Avatar, Badge, Swap, SwapOff, SwapOn} from "components/ui";
 import {statusOptions} from "./dataoptions.js";
 import {Highlight} from "../../../../components/shared/Highlight.jsx";
 import {ensureString} from "../../../../utils/ensureString.js";
+import { PROFILE_URL } from "../../../../configs/auth.config.js";
 
 export function NameCell({ row, getValue, column, table }) {
 
@@ -16,6 +17,13 @@ export function NameCell({ row, getValue, column, table }) {
 
     const initialsName = name;
     const fullName = getValue();
+
+    const getProfilePictureUrl = () => {
+        if (profile_pic) {
+            return `${PROFILE_URL}/${profile_pic}`;
+        }
+        return undefined;
+    };
 
     return (
         <div className="flex items-center space-x-3 ltr:-ml-1 rtl:-mr-1 ">
@@ -33,7 +41,7 @@ export function NameCell({ row, getValue, column, table }) {
                 <SwapOff>
                     <Avatar
                         size={10}
-                        src={profile_pic || undefined}
+                        src={getProfilePictureUrl()}
                         name={initialsName}
                         initialColor={avatar_color || "auto"}
                         classNames={{
