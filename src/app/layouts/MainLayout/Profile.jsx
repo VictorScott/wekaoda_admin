@@ -10,6 +10,7 @@ import { Link } from "react-router";
 import { toast } from "sonner";
 import { Avatar, AvatarDot, Button } from "components/ui";
 import { useAuthContext } from "app/contexts/auth/context";
+import { PROFILE_URL } from "configs/auth.config";
 
 // Profile navigation links
 const links = [
@@ -45,13 +46,20 @@ export function Profile() {
         ? user.avatar_color
         : undefined;
 
+    const getProfilePictureUrl = () => {
+        if (user?.profile_pic) {
+            return `${PROFILE_URL}/${user.profile_pic}`;
+        }
+        return undefined;
+    };
+
     return (
         <Popover className="relative">
             <PopoverButton
                 as={Avatar}
                 size={12}
                 role="button"
-                src={user?.profile_pic || undefined}
+                src={getProfilePictureUrl()}
                 name={user?.name}
                 initialColor={avatarColor}
                 alt={user?.name || "User"}
@@ -80,7 +88,7 @@ export function Profile() {
                             <div className="dark:bg-dark-800 flex items-center gap-4 rounded-t-lg bg-gray-100 px-4 py-5">
                                 <Avatar
                                     size={14}
-                                    src={user?.profile_pic || undefined}
+                                    src={getProfilePictureUrl()}
                                     name={user?.name}
                                     initialColor={avatarColor}
                                     alt={user?.name || "User"}

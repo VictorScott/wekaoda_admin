@@ -158,6 +158,19 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const updateUser = (updatedUserData) => {
+    const updatedUser = { ...state.user, ...updatedUserData };
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    
+    dispatch({
+      type: "INITIALIZE",
+      payload: {
+        isAuthenticated: true,
+        user: updatedUser,
+      },
+    });
+  };
+
   const logout = async () => {
     try {
       await API.post("/auth/logout");
@@ -171,7 +184,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-      <AuthContext value={{ ...state, login, verifyOtp, logout }}>
+      <AuthContext value={{ ...state, login, verifyOtp, updateUser, logout }}>
         {children}
       </AuthContext>
   );
