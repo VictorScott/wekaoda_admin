@@ -15,7 +15,7 @@ import * as yup from "yup";
 import { HiPencil } from "react-icons/hi";
 import { toast } from "sonner";
 import { PreviewImg } from "components/shared/PreviewImg";
-import { Avatar, Button, Input, Upload, GhostSpinner } from "components/ui";
+import { Avatar, Button, Input, Upload, GhostSpinner, Spinner } from "components/ui";
 import { 
   fetchProfile, 
   updateProfile, 
@@ -294,8 +294,8 @@ export default function General() {
   if (loading) {
     return (
       <div className="w-full max-w-3xl 2xl:max-w-5xl">
-        <div className="flex items-center justify-center py-12">
-          <GhostSpinner className="size-8" />
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Spinner color="primary" />
         </div>
       </div>
     );
