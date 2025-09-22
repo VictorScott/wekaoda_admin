@@ -31,6 +31,10 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
 
     if (!businessData) return null;
 
+    // Business types that don't require directors
+    const BUSINESS_TYPES_WITHOUT_DIRECTORS = ['sole_proprietorship'];
+    const shouldShowDirectors = !BUSINESS_TYPES_WITHOUT_DIRECTORS.includes(businessData.business_type);
+
     const {
         business_id,
         business_name,
@@ -39,6 +43,7 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
         country_of_registration,
         date_of_registration,
         business_type,
+        business_type_name,
         registered_office,
         registered_office_address,
         postal_address,
@@ -158,7 +163,7 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                             "Date of Registration": date_of_registration
                                                 ? dayjs(date_of_registration).format("DD.MM.YYYY")
                                                 : "---",
-                                            "Business Type": business_type,
+                                            "Business Type": business_type_name || business_type,
                                         }}
                                     />
                                 </Section>
@@ -182,27 +187,29 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                     />
                                 </Section>
 
-                                {/* Directors Info */}
-                                <Section title="Directors">
-                                    {directors_names.length > 0 ? (
-                                        directors_names.map((d, i) => (
-                                            <div key={i} className="mb-4">
-                                                <h6 className="text-sm font-semibold mb-1">
-                                                    Director {i + 1}
-                                                </h6>
-                                                <InfoGrid
-                                                    data={{
-                                                        Name: d.name,
-                                                        Email: d.email,
-                                                        Position: d.position,
-                                                    }}
-                                                />
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-gray-500 italic text-sm">No directors listed.</p>
-                                    )}
-                                </Section>
+                                {/* Directors Info - Only show for business types that require directors */}
+                                {shouldShowDirectors && (
+                                    <Section title="Directors">
+                                        {directors_names && directors_names.length > 0 ? (
+                                            directors_names.map((d, i) => (
+                                                <div key={i} className="mb-4">
+                                                    <h6 className="text-sm font-semibold mb-1">
+                                                        Director {i + 1}
+                                                    </h6>
+                                                    <InfoGrid
+                                                        data={{
+                                                            Name: d.name,
+                                                            Email: d.email,
+                                                            Position: d.position,
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 italic text-sm">No directors listed.</p>
+                                        )}
+                                    </Section>
+                                )}
 
                                 {/* Financial Info */}
                                 <Section title="Financial Info">

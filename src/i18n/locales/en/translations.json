@@ -4,7 +4,8 @@
       "dashboards": "Dashboard",
       "home": "Home",
       "businesses": "Businesses",
-      "users": "Users"
+      "users": "Users",
+      "kycDocuments": "KYC Documents"
     },
     "settings": {
       "settings": "Settings",

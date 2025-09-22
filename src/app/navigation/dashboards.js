@@ -1,4 +1,4 @@
-import { HomeIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UsersIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import DashboardsIcon from 'assets/dualicons/dashboards.svg?react'
 import { NAV_TYPE_ROOT, NAV_TYPE_ITEM } from 'constants/app.constant'
 
@@ -37,6 +37,14 @@ export const dashboards = {
             title: 'Users',
             transKey: 'nav.dashboards.users',
             Icon: UsersIcon,
+        },
+        {
+            id: 'dashboards.kyc-doc-types',
+            path: path(ROOT_DASHBOARDS, '/kyc-doc-types'),
+            type: NAV_TYPE_ITEM,
+            title: 'KYC Documents',
+            transKey: 'nav.dashboards.kycDocuments',
+            Icon: DocumentTextIcon,
         },
     ]
 }

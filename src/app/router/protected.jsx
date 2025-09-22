@@ -40,6 +40,12 @@ const protectedRoutes = {
                 Component: (await import("app/pages/dashboards/users")).default,
               }),
             },
+            {
+              path: "kyc-doc-types",
+              lazy: async () => ({
+                Component: (await import("app/pages/dashboards/kyc-doc-types")).default,
+              }),
+            },
           ],
         },
       ],

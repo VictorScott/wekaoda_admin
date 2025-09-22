@@ -3,7 +3,7 @@ import {
 } from "@heroicons/react/20/solid";
 import PropTypes from "prop-types";
 import {Avatar, Badge, Swap, SwapOff, SwapOn} from "components/ui";
-import {levelOptions, verificationOptions, statusOptions} from "./data";
+import {levelOptions, verificationOptions, statusOptions, businessTypeOptions} from "./data";
 import {Highlight} from "../../../../components/shared/Highlight.jsx";
 import {ensureString} from "../../../../utils/ensureString.js";
 
@@ -78,6 +78,47 @@ export function VerificationStatusCell({ getValue }) {
     );
 }
 
+export function BusinessTypeCell({ getValue, row }) {
+    const val = getValue();
+    const businessTypeName = row.original.business_type_name;
+    const option = businessTypeOptions.find((item) => item.value === val);
+
+    return (
+        <Badge color={option?.color || "neutral"} className="rounded-full" variant="outlined">
+            {businessTypeName || option?.label || val}
+        </Badge>
+    );
+}
+
+export function KYCSummaryCell({ row }) {
+    const kycSummary = row.original.kyc_summary;
+    
+    if (!kycSummary) {
+        return <span className="text-gray-500 text-sm">No data</span>;
+    }
+
+    const { approved, pending, total, completion_rate } = kycSummary;
+    
+    let color = 'error';
+    
+    if (completion_rate === 100) {
+        color = 'success';
+    } else if (pending > 0) {
+        color = 'warning';
+    }
+
+    return (
+        <div className="flex flex-col space-y-1">
+            <Badge color={color} className="text-xs">
+                {completion_rate}% Complete
+            </Badge>
+            <div className="text-xs text-gray-500">
+                {approved}/{total} approved
+            </div>
+        </div>
+    );
+}
+
 NameCell.propTypes = {
   row: PropTypes.object,
   getValue: PropTypes.func,
@@ -89,4 +130,17 @@ LevelCell.propTypes = {
 
 StatusCell.propTypes = {
   getValue: PropTypes.func,
+};
+
+VerificationStatusCell.propTypes = {
+  getValue: PropTypes.func,
+};
+
+BusinessTypeCell.propTypes = {
+  getValue: PropTypes.func,
+  row: PropTypes.object,
+};
+
+KYCSummaryCell.propTypes = {
+  row: PropTypes.object,
 };

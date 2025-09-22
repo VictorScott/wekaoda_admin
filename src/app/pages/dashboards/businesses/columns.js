@@ -5,6 +5,8 @@ import {
     LevelCell,
     StatusCell,
     VerificationStatusCell,
+    BusinessTypeCell,
+    KYCSummaryCell,
 } from "./rows";
 
 const columnHelper = createColumnHelper();
@@ -28,6 +30,15 @@ export const columns = [
         id: "business_type",
         header: "Type",
         label: "Type",
+        cell: BusinessTypeCell,
+        filter: "searchableSelect",
+        filterFn: "arrIncludesSome",
+    }),
+    columnHelper.accessor((row) => row.kyc_summary, {
+        id: "kyc_summary",
+        header: "KYC Status",
+        label: "KYC Status",
+        cell: KYCSummaryCell,
     }),
     columnHelper.accessor((row) => row.status, {
         id: "status",

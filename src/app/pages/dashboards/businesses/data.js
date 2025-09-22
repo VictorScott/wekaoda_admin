@@ -4,6 +4,10 @@ export const filtersOptions = [
         label: 'Level',
     },
     {
+        value: 'business_type',
+        label: 'Type',
+    },
+    {
         value: 'status',
         label: 'Status',
     },
@@ -59,6 +63,52 @@ export const levelOptions = [
         value: 'Supplier',
         label: 'Supplier',
         color: 'success',
+    }
+];
+
+export const businessTypeOptions = [
+    {
+        value: 'private_limited',
+        label: 'Private Limited',
+        color: 'primary',
+    },
+    {
+        value: 'public_limited',
+        label: 'Public Limited',
+        color: 'secondary',
+    },
+    {
+        value: 'sole_proprietorship',
+        label: 'Sole Proprietorship',
+        color: 'success',
+    },
+    {
+        value: 'partnership',
+        label: 'Partnership',
+        color: 'warning',
+    },
+    {
+        value: 'non_profit',
+        label: 'Non-Profit',
+        color: 'neutral',
+    }
+];
+
+export const kycStatusOptions = [
+    {
+        value: 'completed',
+        label: 'Completed',
+        color: 'success',
+    },
+    {
+        value: 'pending',
+        label: 'Pending',
+        color: 'warning',
+    },
+    {
+        value: 'incomplete',
+        label: 'Incomplete',
+        color: 'error',
     }
 ];
 
