@@ -97,13 +97,19 @@ export function KYCSummaryCell({ row }) {
         return <span className="text-gray-500 text-sm">No data</span>;
     }
 
-    const { approved, pending, total, completion_rate } = kycSummary;
+    const { 
+        approved_required, 
+        total_required, 
+        declined_required,
+        declined, 
+        completion_rate 
+    } = kycSummary;
     
     let color = 'error';
     
     if (completion_rate === 100) {
         color = 'success';
-    } else if (pending > 0) {
+    } else if (approved_required > 0) {
         color = 'warning';
     }
 
@@ -113,7 +119,12 @@ export function KYCSummaryCell({ row }) {
                 {completion_rate}% Complete
             </Badge>
             <div className="text-xs text-gray-500">
-                {approved}/{total} approved
+                {approved_required}/{total_required} required
+                {(declined_required > 0 || declined > 0) && (
+                    <span className="text-red-500 ml-1">
+                        ({declined_required || declined} declined)
+                    </span>
+                )}
             </div>
         </div>
     );

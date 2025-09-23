@@ -11,6 +11,7 @@ import {
 import {
   EllipsisHorizontalIcon,
   EyeIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import {
   PauseCircleIcon,
@@ -22,6 +23,7 @@ import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
 import {fetchBusinesses, updateBusinessStatus, canShowStatusActions} from "store/slices/businessSlice";
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
+import CorrectionModal from "./extended/CorrectionModal.jsx";
 
 export function RowActions({ row }) {
   const dispatch = useDispatch();
@@ -33,6 +35,9 @@ export function RowActions({ row }) {
 
   // Modal state for business details
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  
+  // Modal state for corrections
+  const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
 
   const closeModal = () => {
     setActionModalOpen(false);
@@ -72,6 +77,13 @@ export function RowActions({ row }) {
   const ActionIcon = isActive ? PauseCircleIcon : PlayCircleIcon;
   const actionColor = isActive ? "text-error dark:text-error-light" : "text-success dark:text-success-light";
   const actionBg = isActive ? "bg-error/10 dark:bg-error-light/10" : "bg-success/10 dark:bg-success-light/10";
+  
+  // Check if business can be sent for corrections (declined status)
+  const canSendForCorrection = row.original.verification_status === 'declined';
+
+  const handleCorrectionSuccess = () => {
+    dispatch(fetchBusinesses());
+  };
 
   return (
       <>
@@ -111,6 +123,24 @@ export function RowActions({ row }) {
                     </button>
                 )}
               </MenuItem>
+
+              {/* Send for Correction - Only show for declined businesses */}
+              {canSendForCorrection && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={() => setCorrectionModalOpen(true)}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-warning dark:text-warning-light",
+                              active && "bg-warning/10 dark:bg-warning-light/10"
+                          )}
+                      >
+                        <ExclamationTriangleIcon className="size-5" />
+                        <span>Send for Corrections</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
 
               {/* Status Action - Only show if actions are allowed */}
               {canShowActions && (
@@ -169,6 +199,14 @@ export function RowActions({ row }) {
                 onReload={() => dispatch(fetchBusinesses())}
             />
         )}
+
+        {/* Correction Modal */}
+        <CorrectionModal
+            open={correctionModalOpen}
+            onClose={() => setCorrectionModalOpen(false)}
+            businessData={row.original}
+            onSuccess={handleCorrectionSuccess}
+        />
       </>
   );
 }

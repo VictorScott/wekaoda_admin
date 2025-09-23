@@ -13,6 +13,7 @@ import { Button, Radio, Textarea } from "components/ui";
 import { submitBusinessReview, canShowVerificationActions } from "store/slices/businessSlice";
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import DocumentReviewModal from "./DocumentReviewModal";
+import CorrectionModal from "./CorrectionModal";
 import { FILE_URL } from "../../../../../configs/auth.config";
 import dayjs from "dayjs";
 
@@ -28,8 +29,15 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
     const [confirmState, setConfirmState] = useState("pending");
     const [errorMessage, setErrorMessage] = useState("");
     const [openDocIndex, setOpenDocIndex] = useState(null);
+    const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
 
     if (!businessData) return null;
+
+    const handleCorrectionSuccess = () => {
+        setCorrectionModalOpen(false);
+        if (onReload) onReload();
+        onClose();
+    };
 
     // Business types that don't require directors
     const BUSINESS_TYPES_WITHOUT_DIRECTORS = ['sole_proprietorship'];
@@ -330,6 +338,15 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                                                 <Button onClick={onClose} variant="outlined">
                                                     Close
                                                 </Button>
+                                                {reviewStatus === "declined" && (
+                                                    <Button
+                                                        onClick={() => setCorrectionModalOpen(true)}
+                                                        color="warning"
+                                                        disabled={submitting}
+                                                    >
+                                                        Send Back for Correction
+                                                    </Button>
+                                                )}
                                                 <Button
                                                     onClick={handleReviewSubmit}
                                                     color={reviewStatus === "verified" ? "success" : "error"}
@@ -388,6 +405,14 @@ export default function BusinessDetailsModal({ open, onClose, businessData, onRe
                         actionText: "Retry",
                     },
                 }}
+            />
+
+            {/* Correction Modal */}
+            <CorrectionModal
+                open={correctionModalOpen}
+                onClose={() => setCorrectionModalOpen(false)}
+                businessData={businessData}
+                onSuccess={handleCorrectionSuccess}
             />
         </>
     );

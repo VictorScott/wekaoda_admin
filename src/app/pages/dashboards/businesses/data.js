@@ -50,6 +50,11 @@ export const verificationOptions = [
         value: 'pending',
         label: 'Pending',
         color: 'warning',
+    },
+    {
+        value: 'sent_for_corrections',
+        label: 'Sent for Corrections',
+        color: 'secondary',
     }
 ];
 

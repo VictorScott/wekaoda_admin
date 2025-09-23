@@ -53,6 +53,23 @@ export const submitBusinessReview = createAsyncThunk(
     }
 );
 
+// Send business back for corrections
+export const sendBackForCorrection = createAsyncThunk(
+    "businesses/sendBackForCorrection",
+    async ({ business_id, correction_comments, admin_name }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/send-back-for-correction", {
+                business_id,
+                correction_comments,
+                admin_name,
+            });
+            return { business_id, ...response.data };
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const businessSlice = createSlice({
     name: "businesses",
     initialState: {
@@ -144,8 +161,26 @@ const businessSlice = createSlice({
                     biz.status = verification_status === 'verified' ? 'active' : 'suspended';
                 }
             })
+
+            .addCase(sendBackForCorrection.fulfilled, (state, { payload }) => {
+                const { business_id } = payload;
+                const biz = state.businesses.find((b) => b.business_id === business_id);
+                if (biz) {
+                    biz.verification_status = 'sent_for_corrections';
+                    biz.kyc_status = 'sent_for_corrections';
+                }
+            })
             .addMatcher((action) => action.type.endsWith("/rejected"), (state, { payload }) => {
-                state.error = payload || "An error occurred";
+                // Ensure error is always a string
+                if (typeof payload === 'string') {
+                    state.error = payload;
+                } else if (payload?.message) {
+                    state.error = payload.message;
+                } else if (typeof payload === 'object') {
+                    state.error = JSON.stringify(payload);
+                } else {
+                    state.error = "An error occurred";
+                }
             });
     },
 });
