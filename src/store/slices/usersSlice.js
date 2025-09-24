@@ -42,6 +42,20 @@ export const updateUserStatus = createAsyncThunk(
     }
 );
 
+export const fetchUserProfile = createAsyncThunk(
+    "users/fetchProfile",
+    async ({ userId }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/users/profile", {
+                user_id: userId
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const usersSlice = createSlice({
     name: "users",
     initialState: {
