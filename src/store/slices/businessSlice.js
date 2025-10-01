@@ -103,6 +103,21 @@ export const fetchPartnershipDetails = createAsyncThunk(
     }
 );
 
+// Fetch verification logs for a business
+export const fetchVerificationLogs = createAsyncThunk(
+    "businesses/fetchVerificationLogs",
+    async ({ businessId }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/verification-logs", {
+                business_id: businessId
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const businessSlice = createSlice({
     name: "businesses",
     initialState: {

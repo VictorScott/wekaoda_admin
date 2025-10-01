@@ -14,6 +14,7 @@ import {
   ExclamationTriangleIcon,
   UserGroupIcon,
   BuildingOfficeIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 import {
   PauseCircleIcon,
@@ -27,6 +28,7 @@ import {fetchBusinesses, updateBusinessStatus, canShowStatusActions} from "store
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 import CorrectionModal from "./extended/CorrectionModal.jsx";
 import PartnersListModal from "./extended/PartnersListModal.jsx";
+import { VerificationLogsModal } from "./extended/VerificationLogsModal.jsx";
 
 export function RowActions({ row }) {
   const dispatch = useDispatch();
@@ -45,6 +47,9 @@ export function RowActions({ row }) {
   // Modal state for partners list
   const [partnersModalOpen, setPartnersModalOpen] = useState(false);
   const [partnersType, setPartnersType] = useState(null); // 'suppliers' or 'anchors'
+  
+  // Modal state for verification logs
+  const [verificationLogsModalOpen, setVerificationLogsModalOpen] = useState(false);
 
   const closeModal = () => {
     setActionModalOpen(false);
@@ -137,6 +142,21 @@ export function RowActions({ row }) {
                     >
                       <EyeIcon className="size-4.5 stroke-1" />
                       <span>View</span>
+                    </button>
+                )}
+              </MenuItem>
+
+              <MenuItem>
+                {({ active }) => (
+                    <button
+                        onClick={() => setVerificationLogsModalOpen(true)}
+                        className={clsx(
+                            "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-purple-600 dark:text-purple-400",
+                            active && "bg-purple-50 dark:bg-purple-900/20"
+                        )}
+                    >
+                      <ClockIcon className="size-4.5" />
+                      <span>Verification History</span>
                     </button>
                 )}
               </MenuItem>
@@ -267,6 +287,13 @@ export function RowActions({ row }) {
             onClose={() => setPartnersModalOpen(false)}
             businessData={row.original}
             partnersType={partnersType}
+        />
+
+        {/* Verification Logs Modal */}
+        <VerificationLogsModal
+            open={verificationLogsModalOpen}
+            onClose={() => setVerificationLogsModalOpen(false)}
+            business={row.original}
         />
       </>
   );
