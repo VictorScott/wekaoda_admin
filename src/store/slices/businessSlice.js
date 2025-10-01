@@ -70,6 +70,39 @@ export const sendBackForCorrection = createAsyncThunk(
     }
 );
 
+// Fetch business partners (suppliers or anchors)
+export const fetchBusinessPartners = createAsyncThunk(
+    "businesses/fetchPartners",
+    async ({ businessId, type }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/partners", {
+                business_id: businessId,
+                partner_type: type
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Fetch partnership details
+export const fetchPartnershipDetails = createAsyncThunk(
+    "businesses/fetchPartnershipDetails",
+    async ({ businessId, partnerBusinessId, partnershipId }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/partnership-details", {
+                business_id: businessId,
+                partner_business_id: partnerBusinessId,
+                partnership_id: partnershipId
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const businessSlice = createSlice({
     name: "businesses",
     initialState: {

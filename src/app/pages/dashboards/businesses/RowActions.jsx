@@ -12,6 +12,8 @@ import {
   EllipsisHorizontalIcon,
   EyeIcon,
   ExclamationTriangleIcon,
+  UserGroupIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 import {
   PauseCircleIcon,
@@ -24,6 +26,7 @@ import { Button } from "components/ui";
 import {fetchBusinesses, updateBusinessStatus, canShowStatusActions} from "store/slices/businessSlice";
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 import CorrectionModal from "./extended/CorrectionModal.jsx";
+import PartnersListModal from "./extended/PartnersListModal.jsx";
 
 export function RowActions({ row }) {
   const dispatch = useDispatch();
@@ -38,6 +41,10 @@ export function RowActions({ row }) {
   
   // Modal state for corrections
   const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
+  
+  // Modal state for partners list
+  const [partnersModalOpen, setPartnersModalOpen] = useState(false);
+  const [partnersType, setPartnersType] = useState(null); // 'suppliers' or 'anchors'
 
   const closeModal = () => {
     setActionModalOpen(false);
@@ -80,6 +87,16 @@ export function RowActions({ row }) {
   
   // Check if business can be sent for corrections (declined status)
   const canSendForCorrection = row.original.verification_status === 'declined';
+  
+  // Check business level for partners options
+  const businessLevel = row.original.business_level;
+  const canShowSuppliers = businessLevel === 'Anchor';
+  const canShowAnchors = businessLevel === 'Supplier';
+  
+  const handleShowPartners = (type) => {
+    setPartnersType(type);
+    setPartnersModalOpen(true);
+  };
 
   const handleCorrectionSuccess = () => {
     dispatch(fetchBusinesses());
@@ -123,6 +140,42 @@ export function RowActions({ row }) {
                     </button>
                 )}
               </MenuItem>
+
+              {/* Show Suppliers - Only for Anchor businesses */}
+              {canShowSuppliers && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={() => handleShowPartners('suppliers')}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-blue-600 dark:text-blue-400",
+                              active && "bg-blue-50 dark:bg-blue-900/20"
+                          )}
+                      >
+                        <UserGroupIcon className="size-5" />
+                        <span>View Suppliers</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
+
+              {/* Show Anchors - Only for Supplier businesses */}
+              {canShowAnchors && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={() => handleShowPartners('anchors')}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-green-600 dark:text-green-400",
+                              active && "bg-green-50 dark:bg-green-900/20"
+                          )}
+                      >
+                        <BuildingOfficeIcon className="size-5" />
+                        <span>View Anchors</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
 
               {/* Send for Correction - Only show for declined businesses */}
               {canSendForCorrection && (
@@ -206,6 +259,14 @@ export function RowActions({ row }) {
             onClose={() => setCorrectionModalOpen(false)}
             businessData={row.original}
             onSuccess={handleCorrectionSuccess}
+        />
+
+        {/* Partners List Modal */}
+        <PartnersListModal
+            open={partnersModalOpen}
+            onClose={() => setPartnersModalOpen(false)}
+            businessData={row.original}
+            partnersType={partnersType}
         />
       </>
   );
