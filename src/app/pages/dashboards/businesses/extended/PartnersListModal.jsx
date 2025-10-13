@@ -24,7 +24,7 @@ import clsx from "clsx";
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { Button, GhostSpinner, Table, Card, THead, TBody, Th, Tr, Td } from "components/ui";
+import {Button, Table, Card, THead, TBody, Th, Tr, Td, Spinner} from "components/ui";
 import { TableSortIcon } from "components/shared/table/TableSortIcon";
 import { PaginationSection } from "components/shared/table/PaginationSection";
 import { useThemeContext } from "app/contexts/theme/context";
@@ -253,7 +253,7 @@ export default function PartnersListModal({ open, onClose, businessData, partner
 
                                         {loading ? (
                                             <div className="flex justify-center items-center py-12">
-                                                <GhostSpinner className="size-8" />
+                                                <Spinner color="primary" />
                                                 <span className="ml-3 text-gray-600 dark:text-dark-300">Loading partners...</span>
                                             </div>
                                         ) : error ? (

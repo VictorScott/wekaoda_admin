@@ -18,7 +18,7 @@ import {
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { Button, Badge, GhostSpinner } from "components/ui";
+import {Button, Badge, Spinner} from "components/ui";
 import { fetchVerificationLogs } from "store/slices/businessSlice";
 import dayjs from "dayjs";
 
@@ -158,7 +158,7 @@ export function VerificationLogsModal({ open, onClose, business }) {
                         <div className="flex flex-col overflow-y-auto px-4 py-4 sm:px-5">
                             {loading ? (
                                 <div className="flex justify-center items-center py-12">
-                                    <GhostSpinner className="size-8" />
+                                    <Spinner color="primary" />
                                     <span className="ml-3 text-gray-600 dark:text-dark-300">Loading verification logs...</span>
                                 </div>
                             ) : error ? (

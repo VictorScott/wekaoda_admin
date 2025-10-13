@@ -11,7 +11,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
-import { Button, Input, GhostSpinner } from "components/ui";
+import {Button, Input, GhostSpinner, Spinner} from "components/ui";
 import { useDispatch } from "react-redux";
 import { fetchBusinesses } from "store/slices/businessSlice";
 import { TableConfig } from "./TableConfig";
@@ -54,7 +54,7 @@ export function Toolbar({ table, refreshing = false, lastUpdated = null }) {
           </h2>
           {refreshing ? (
             <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
-              <GhostSpinner className="size-4" />
+                <Spinner color="primary" className="size-4 border-2" />
               <span className="text-xs">Refreshing...</span>
             </div>
           ) : displayTime && (
