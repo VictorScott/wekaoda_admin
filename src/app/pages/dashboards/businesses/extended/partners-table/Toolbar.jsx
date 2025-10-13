@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
 import { TableConfig } from "./TableConfig";
-import { Button, Input, GhostSpinner } from "components/ui";
+import {Button, Input, Spinner} from "components/ui";
 import { useBreakpointsContext } from "app/contexts/breakpoint/context";
 
 import { 
@@ -63,7 +63,7 @@ export function Toolbar({
                     </div>
                     {refreshing ? (
                         <div className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
-                            <GhostSpinner className="size-4" />
+                            <Spinner color="primary" className="size-4 border-2" />
                             <span className="text-xs">Refreshing...</span>
                         </div>
                     ) : displayTime && (
