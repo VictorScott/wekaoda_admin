@@ -19,7 +19,7 @@ import {
 import { Fragment, useState, useRef, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
-import { Button, Badge, GhostSpinner, Avatar } from "components/ui";
+import {Button, Badge, Avatar, Spinner} from "components/ui";
 import { PreviewImg } from "components/shared/PreviewImg";
 import { fetchUserProfile } from "store/slices/usersSlice";
 import { PROFILE_URL } from "configs/auth.config";
@@ -155,7 +155,7 @@ export default function UserProfileModal({ open, onClose, userId }) {
                         <div className="flex flex-col overflow-y-auto px-4 py-4 sm:px-5">
                             {loading ? (
                                 <div className="flex justify-center items-center py-12">
-                                    <GhostSpinner className="size-8" />
+                                    <Spinner color="primary" />
                                     <span className="ml-3 text-gray-600 dark:text-dark-300">Loading profile...</span>
                                 </div>
                             ) : error ? (
