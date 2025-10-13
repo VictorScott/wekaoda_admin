@@ -11,7 +11,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import { FacedtedFilter } from "components/shared/table/FacedtedFilter";
 import { FilterSelector } from "components/shared/table/FilterSelector";
-import {Button, Input, GhostSpinner, Spinner} from "components/ui";
+import {Button, Input, Spinner} from "components/ui";
 import { useDispatch } from "react-redux";
 import { fetchBusinesses } from "store/slices/businessSlice";
 import { TableConfig } from "./TableConfig";
