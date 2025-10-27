@@ -86,6 +86,19 @@ export const fetchBusinessPartners = createAsyncThunk(
     }
 );
 
+// Fetch business ecosystems (echo systems)
+export const fetchBusinessEcosystems = createAsyncThunk(
+    "businesses/fetchEcosystems",
+    async ({ businessId }, { rejectWithValue }) => {
+        try {
+            const response = await API.get(`/business/${businessId}/ecosystems`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 // Fetch partnership details
 export const fetchPartnershipDetails = createAsyncThunk(
     "businesses/fetchPartnershipDetails",
@@ -118,6 +131,110 @@ export const fetchVerificationLogs = createAsyncThunk(
     }
 );
 
+// Onboard new business
+export const onboardBusiness = createAsyncThunk(
+    "businesses/onboard",
+    async (businessData, { rejectWithValue }) => {
+        try {
+            const formData = new FormData();
+
+            // Add business information
+            Object.keys(businessData).forEach(key => {
+                if (key === 'documents') {
+                    // Handle document uploads
+                    businessData.documents.forEach((doc, index) => {
+                        if (doc.file) {
+                            formData.append(`documents[${index}][file]`, doc.file);
+                            formData.append(`documents[${index}][id]`, doc.id);
+                            formData.append(`documents[${index}][name]`, doc.name);
+                        }
+                    });
+                } else if (key === 'admins') {
+                    // Handle admins array
+                    formData.append('admins', JSON.stringify(businessData.admins));
+                } else if (key === 'businessLevel') {
+                    formData.append('business_level', businessData.businessLevel?.level || businessData.businessLevel);
+                } else if (key === 'businessType') {
+                    formData.append('business_type', businessData.businessType?.type || businessData.businessType);
+                } else if (typeof businessData[key] === 'object' && businessData[key] !== null) {
+                    formData.append(key, JSON.stringify(businessData[key]));
+                } else {
+                    formData.append(key, businessData[key]);
+                }
+            });
+
+            const response = await API.post("/business/onboard", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Save draft
+export const saveDraft = createAsyncThunk(
+    "businesses/saveDraft",
+    async ({ businessId, step, data }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/save-draft", {
+                business_id: businessId,
+                step: step,
+                data: data
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Load draft
+export const loadDraft = createAsyncThunk(
+    "businesses/loadDraft",
+    async ({ businessId }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/load-draft", {
+                business_id: businessId
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Discard draft
+export const discardDraft = createAsyncThunk(
+    "businesses/discardDraft",
+    async ({ businessId }, { rejectWithValue }) => {
+        try {
+            const response = await API.post("/business/discard-draft", {
+                business_id: businessId
+            });
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+// Get single business
+export const getSingleBusiness = createAsyncThunk(
+    "businesses/getSingleBusiness",
+    async ({ businessId }, { rejectWithValue }) => {
+        try {
+            const response = await API.get(`/business/get-business/${businessId}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const businessSlice = createSlice({
     name: "businesses",
     initialState: {
@@ -127,6 +244,9 @@ const businessSlice = createSlice({
         refreshing: false,        // For table refresh operations
         actionLoading: {},        // For individual row actions (by business ID)
         error: null,
+        // Draft state
+        currentDraft: null,
+        draftLoading: false,
     },
     reducers: {
         updateDocumentStatusInStore: (state, action) => {
@@ -159,6 +279,13 @@ const businessSlice = createSlice({
         },
         setRefreshing: (state, action) => {
             state.refreshing = action.payload;
+        },
+        updateSingleBusiness: (state, action) => {
+            const updatedBusiness = action.payload;
+            const index = state.businesses.findIndex(b => b.business_id === updatedBusiness.business_id);
+            if (index !== -1) {
+                state.businesses[index] = updatedBusiness;
+            }
         },
     },
     extraReducers: (builder) => {
@@ -233,7 +360,7 @@ const businessSlice = createSlice({
     },
 });
 
-export const { updateDocumentStatusInStore, clearError, setActionLoading, clearActionLoading, setRefreshing } = businessSlice.actions;
+export const { updateDocumentStatusInStore, clearError, setActionLoading, clearActionLoading, setRefreshing, updateSingleBusiness } = businessSlice.actions;
 
 // Selectors
 export const selectBusinesses = (state) => state.businesses.businesses;

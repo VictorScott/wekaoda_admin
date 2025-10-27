@@ -2,6 +2,7 @@ import {
   CheckCircleIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import {
@@ -23,7 +24,7 @@ import {
     verificationOptions,
 } from "./data";
 
-export function Toolbar({ table, refreshing = false, lastUpdated = null }) {
+export function Toolbar({ table, refreshing = false, lastUpdated = null, onAddBusiness }) {
   const { isXs } = useBreakpointsContext();
   const dispatch = useDispatch();
   const isFullScreenEnabled = table.getState().tableSettings.enableFullScreen;
@@ -64,6 +65,15 @@ export function Toolbar({ table, refreshing = false, lastUpdated = null }) {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            onClick={onAddBusiness}
+            color="primary"
+            className="h-8 space-x-1.5 rounded-md px-3 text-xs"
+            title="Add new business"
+          >
+            <PlusIcon className="size-4" />
+            <span>Add Business</span>
+          </Button>
           <Button
             onClick={handleRefresh}
             disabled={refreshing}
@@ -195,6 +205,8 @@ function Filters({ table }) {
 Toolbar.propTypes = {
   table: PropTypes.object.isRequired,
   refreshing: PropTypes.bool,
+  lastUpdated: PropTypes.instanceOf(Date),
+  onAddBusiness: PropTypes.func.isRequired,
 };
 
 SearchInput.propTypes = {

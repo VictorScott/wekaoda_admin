@@ -12,9 +12,11 @@ import {
   EllipsisHorizontalIcon,
   EyeIcon,
   ExclamationTriangleIcon,
-  UserGroupIcon,
   BuildingOfficeIcon,
   ClockIcon,
+  PencilIcon,
+  TrashIcon,
+  LinkIcon,
 } from "@heroicons/react/24/outline";
 import {
   PauseCircleIcon,
@@ -24,13 +26,14 @@ import clsx from "clsx";
 
 import { ConfirmModal } from "components/shared/ConfirmModal";
 import { Button } from "components/ui";
-import {fetchBusinesses, updateBusinessStatus, canShowStatusActions} from "store/slices/businessSlice";
+import {fetchBusinesses, updateBusinessStatus, canShowStatusActions, discardDraft} from "store/slices/businessSlice";
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 import CorrectionModal from "./extended/CorrectionModal.jsx";
-import PartnersListModal from "./extended/PartnersListModal.jsx";
 import { VerificationLogsModal } from "./extended/VerificationLogsModal.jsx";
+import EchoCodeModal from "./extended/EchoCodeModal.jsx";
+import EcosystemModal from "./extended/EcosystemModal.jsx";
 
-export function RowActions({ row }) {
+export function RowActions({ row, table }) {
   const dispatch = useDispatch();
 
   const [actionModalOpen, setActionModalOpen] = useState(false);
@@ -44,12 +47,20 @@ export function RowActions({ row }) {
   // Modal state for corrections
   const [correctionModalOpen, setCorrectionModalOpen] = useState(false);
   
-  // Modal state for partners list
-  const [partnersModalOpen, setPartnersModalOpen] = useState(false);
-  const [partnersType, setPartnersType] = useState(null); // 'suppliers' or 'anchors'
-  
   // Modal state for verification logs
   const [verificationLogsModalOpen, setVerificationLogsModalOpen] = useState(false);
+  
+  // Modal state for echo code
+  const [echoCodeModalOpen, setEchoCodeModalOpen] = useState(false);
+  
+  // Modal state for echo system
+  const [echoSystemModalOpen, setEchoSystemModalOpen] = useState(false);
+  
+  // Modal state for discard draft
+  const [discardModalOpen, setDiscardModalOpen] = useState(false);
+  const [discardLoading, setDiscardLoading] = useState(false);
+  const [discardSuccess, setDiscardSuccess] = useState(false);
+  const [discardError, setDiscardError] = useState(false);
 
   const closeModal = () => {
     setActionModalOpen(false);
@@ -93,18 +104,47 @@ export function RowActions({ row }) {
   // Check if business can be sent for corrections (declined status)
   const canSendForCorrection = row.original.verification_status === 'declined';
   
-  // Check business level for partners options
-  const businessLevel = row.original.business_level;
-  const canShowSuppliers = businessLevel === 'Anchor';
-  const canShowAnchors = businessLevel === 'Supplier';
-  
-  const handleShowPartners = (type) => {
-    setPartnersType(type);
-    setPartnersModalOpen(true);
-  };
 
   const handleCorrectionSuccess = () => {
     dispatch(fetchBusinesses());
+  };
+
+  // Check if business is admin-created draft
+  const isAdminCreatedDraft = row.original.created_by === 'admin' && row.original.is_draft;
+
+  const closeDiscardModal = () => {
+    setDiscardModalOpen(false);
+    setDiscardError(false);
+    setDiscardSuccess(false);
+  };
+
+  const openDiscardModal = () => {
+    setDiscardModalOpen(true);
+    setDiscardError(false);
+    setDiscardSuccess(false);
+  };
+
+  const handleDiscardDraft = useCallback(async () => {
+    setDiscardLoading(true);
+    try {
+      const businessId = row.original.business_id;
+      await dispatch(discardDraft({ businessId })).unwrap();
+      setDiscardSuccess(true);
+      // Refresh the businesses list
+      dispatch(fetchBusinesses());
+    } catch (error) {
+      console.error('Error discarding draft:', error);
+      setDiscardError(true);
+    } finally {
+      setDiscardLoading(false);
+    }
+  }, [dispatch, row]);
+
+  const handleUpdateDraft = () => {
+    const { openOnboardingModal } = table.options.meta;
+    if (openOnboardingModal) {
+      openOnboardingModal(row.original);
+    }
   };
 
   return (
@@ -161,37 +201,71 @@ export function RowActions({ row }) {
                 )}
               </MenuItem>
 
-              {/* Show Suppliers - Only for Anchor businesses */}
-              {canShowSuppliers && (
+              {/* Add Echo Code - Only for verified businesses */}
+              {row.original.verification_status === 'verified' && (
                 <MenuItem>
                   {({ active }) => (
                       <button
-                          onClick={() => handleShowPartners('suppliers')}
-                          className={clsx(
-                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-blue-600 dark:text-blue-400",
-                              active && "bg-blue-50 dark:bg-blue-900/20"
-                          )}
-                      >
-                        <UserGroupIcon className="size-5" />
-                        <span>View Suppliers</span>
-                      </button>
-                  )}
-                </MenuItem>
-              )}
-
-              {/* Show Anchors - Only for Supplier businesses */}
-              {canShowAnchors && (
-                <MenuItem>
-                  {({ active }) => (
-                      <button
-                          onClick={() => handleShowPartners('anchors')}
+                          onClick={() => setEchoCodeModalOpen(true)}
                           className={clsx(
                               "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-green-600 dark:text-green-400",
                               active && "bg-green-50 dark:bg-green-900/20"
                           )}
                       >
-                        <BuildingOfficeIcon className="size-5" />
-                        <span>View Anchors</span>
+                        <LinkIcon className="size-4.5" />
+                        <span>Add Echo Code</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
+
+              {/* View Echo System - For all businesses */}
+              <MenuItem>
+                {({ active }) => (
+                    <button
+                        onClick={() => setEchoSystemModalOpen(true)}
+                        className={clsx(
+                            "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-purple-600 dark:text-purple-400",
+                            active && "bg-purple-50 dark:bg-purple-900/20"
+                        )}
+                    >
+                      <BuildingOfficeIcon className="size-4.5" />
+                              <span>View Ecosystem</span>
+                    </button>
+                )}
+              </MenuItem>
+
+              {/* Update Draft - Only for admin-created drafts */}
+              {isAdminCreatedDraft && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={handleUpdateDraft}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-blue-600 dark:text-blue-400",
+                              active && "bg-blue-50 dark:bg-blue-900/20"
+                          )}
+                      >
+                        <PencilIcon className="size-4.5" />
+                        <span>Update Draft</span>
+                      </button>
+                  )}
+                </MenuItem>
+              )}
+
+              {/* Discard Draft - Only for admin-created drafts */}
+              {isAdminCreatedDraft && (
+                <MenuItem>
+                  {({ active }) => (
+                      <button
+                          onClick={openDiscardModal}
+                          className={clsx(
+                              "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-red-600 dark:text-red-400",
+                              active && "bg-red-50 dark:bg-red-900/20"
+                          )}
+                      >
+                        <TrashIcon className="size-4.5" />
+                        <span>Discard Draft</span>
                       </button>
                   )}
                 </MenuItem>
@@ -281,19 +355,51 @@ export function RowActions({ row }) {
             onSuccess={handleCorrectionSuccess}
         />
 
-        {/* Partners List Modal */}
-        <PartnersListModal
-            open={partnersModalOpen}
-            onClose={() => setPartnersModalOpen(false)}
-            businessData={row.original}
-            partnersType={partnersType}
-        />
-
         {/* Verification Logs Modal */}
         <VerificationLogsModal
             open={verificationLogsModalOpen}
             onClose={() => setVerificationLogsModalOpen(false)}
             business={row.original}
+        />
+
+        {/* Discard Draft Confirmation Modal */}
+        <ConfirmModal
+            show={discardModalOpen}
+            onClose={closeDiscardModal}
+            onOk={handleDiscardDraft}
+            confirmLoading={discardLoading}
+            state={discardError ? "error" : discardSuccess ? "success" : "pending"}
+            messages={{
+              pending: {
+                title: "Discard Draft",
+                description: "Are you sure you want to discard this draft business? This action cannot be undone.",
+                actionText: "Discard",
+              },
+              success: {
+                title: "Draft Discarded",
+                description: "The draft business has been successfully discarded.",
+                actionText: "Done",
+              },
+              error: {
+                title: "Operation Failed",
+                description: "Something went wrong while discarding the draft. Please try again.",
+                actionText: "Retry",
+              },
+            }}
+        />
+
+        {/* Echo Code Modal */}
+        <EchoCodeModal
+            open={echoCodeModalOpen}
+            onClose={() => setEchoCodeModalOpen(false)}
+            currentBusiness={row.original}
+        />
+
+        {/* Ecosystem Modal */}
+        <EcosystemModal
+            open={echoSystemModalOpen}
+            onClose={() => setEchoSystemModalOpen(false)}
+            businessData={row.original}
         />
       </>
   );
@@ -301,4 +407,5 @@ export function RowActions({ row }) {
 
 RowActions.propTypes = {
   row: PropTypes.object.isRequired,
+  table: PropTypes.object.isRequired,
 };

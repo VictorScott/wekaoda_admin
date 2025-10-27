@@ -32,14 +32,13 @@ export function NameCell({ row, getValue, column, table }) {
                             root: "rounded-full border-2 border-dashed border-transparent p-0.5 transition-colors group-hover/tr:border-gray-400 dark:group-hover/tr:border-dark-300",
                             display: "text-xs-plus",
                         }}
-                        initialColor="auto"
                         name={row.original.business_name}
                     />
                 </SwapOff>
             </Swap>
 
             <div className="font-medium text-gray-800 dark:text-dark-100">
-                <Highlight query={[globalQuery, columnQuery]}>{getValue()}</Highlight>
+                <Highlight query={[globalQuery, columnQuery]}>{getValue() || ''}</Highlight>
             </div>
         </div>
     );
@@ -105,9 +104,12 @@ export function KYCSummaryCell({ row }) {
         completion_rate 
     } = kycSummary;
     
+    // If total_required is 0, completion rate should be 100%
+    const actualCompletionRate = total_required === 0 ? 100 : completion_rate;
+    
     let color = 'error';
     
-    if (completion_rate === 100) {
+    if (actualCompletionRate === 100) {
         color = 'success';
     } else if (approved_required > 0) {
         color = 'warning';
@@ -116,7 +118,7 @@ export function KYCSummaryCell({ row }) {
     return (
         <div className="flex flex-col space-y-1">
             <Badge color={color} className="text-xs">
-                {completion_rate}% Complete
+                {actualCompletionRate}% Complete
             </Badge>
             <div className="text-xs text-gray-500">
                 {approved_required}/{total_required} required

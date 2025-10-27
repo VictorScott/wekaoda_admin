@@ -2,7 +2,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { RowActions } from "./RowActions";
 import {
     NameCell,
-    LevelCell,
     StatusCell,
     VerificationStatusCell,
     BusinessTypeCell,
@@ -17,14 +16,6 @@ export const columns = [
         header: "Name",
         label: "Business Name",
         cell: NameCell,
-    }),
-    columnHelper.accessor((row) => row.business_level, {
-        id: "business_level",
-        header: "Level",
-        label: "Level",
-        cell: LevelCell,
-        filter: "searchableSelect",
-        filterFn: "arrIncludesSome",
     }),
     columnHelper.accessor((row) => row.business_type, {
         id: "business_type",

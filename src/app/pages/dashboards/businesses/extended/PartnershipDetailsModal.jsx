@@ -8,7 +8,6 @@ import {
 import { 
     XMarkIcon,
     EnvelopeIcon,
-    UserIcon,
     BriefcaseIcon,
     CalendarIcon,
     IdentificationIcon,
@@ -19,49 +18,35 @@ import {
 } from "@heroicons/react/24/outline";
 import { Fragment, useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
-import {Button, Badge, Spinner} from "components/ui";
-import { fetchPartnershipDetails } from "store/slices/businessSlice";
+import {Button, Badge} from "components/ui";
 import dayjs from "dayjs";
 
-export default function PartnershipDetailsModal({ open, onClose, partnershipData, businessData }) {
-    const dispatch = useDispatch();
+export default function PartnershipDetailsModal({ open, onClose, ecosystemData, businessData }) {
     const closeButtonRef = useRef(null);
     
-    const [loading, setLoading] = useState(false);
-    const [partnershipDetails, setPartnershipDetails] = useState(null);
+    const [ecosystemDetails, setEcosystemDetails] = useState(null);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (open && partnershipData && businessData) {
-            fetchDetails();
-        }
-    }, [open, partnershipData, businessData]);
-
-    const fetchDetails = async () => {
-        setLoading(true);
-        setError("");
-        try {
-            const result = await dispatch(fetchPartnershipDetails({
-                businessId: businessData.business_id,
-                partnerBusinessId: partnershipData.business_id,
-                partnershipId: partnershipData.partnership_id
-            })).unwrap();
+        if (open && ecosystemData && businessData) {
+            // Determine which business is the current one and which is the partner
+            const currentBusinessId = businessData.business_id;
+            const isCurrentBusinessA = ecosystemData.business_a?.business_id === currentBusinessId;
             
-            if (result.success) {
-                setPartnershipDetails(result.data);
-            } else {
-                setError(result.message || "Failed to fetch partnership details");
-            }
-        } catch (err) {
-            setError(err.message || "Failed to fetch partnership details");
-        } finally {
-            setLoading(false);
+            const processedData = {
+                ...ecosystemData,
+                current_business: isCurrentBusinessA ? ecosystemData.business_a : ecosystemData.business_b,
+                partner_business: isCurrentBusinessA ? ecosystemData.business_b : ecosystemData.business_a,
+                current_business_level: isCurrentBusinessA ? ecosystemData.business_a?.business_level : ecosystemData.business_b?.business_level,
+                partner_business_level: isCurrentBusinessA ? ecosystemData.business_b?.business_level : ecosystemData.business_a?.business_level,
+            };
+            
+            setEcosystemDetails(processedData);
         }
-    };
+    }, [open, ecosystemData, businessData]);
 
     const handleClose = () => {
-        setPartnershipDetails(null);
+        setEcosystemDetails(null);
         setError("");
         onClose();
     };
@@ -126,7 +111,7 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                     <DialogPanel className="relative flex w-full max-w-4xl origin-top flex-col overflow-hidden rounded-lg bg-white transition-all duration-300 dark:bg-dark-700">
                         <div className="flex items-center justify-between rounded-t-lg bg-gray-200 px-4 py-3 dark:bg-dark-800 sm:px-5">
                             <DialogTitle className="text-base font-medium text-gray-800 dark:text-dark-100">
-                                Partnership Details
+                                Ecosystem Details
                             </DialogTitle>
                             <Button
                                 onClick={handleClose}
@@ -140,21 +125,16 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                         </div>
 
                         <div className="flex flex-col overflow-y-auto px-4 py-4 sm:px-5">
-                            {loading ? (
-                                <div className="flex justify-center items-center py-12">
-                                    <Spinner color="primary" />
-                                    <span className="ml-3 text-gray-600 dark:text-dark-300">Loading partnership details...</span>
-                                </div>
-                            ) : error ? (
+                            {error ? (
                                 <div className="text-center py-8">
                                     <div className="text-error dark:text-error-light mb-4">{error}</div>
-                                    <Button onClick={fetchDetails} size="sm">
+                                    <Button onClick={() => setEcosystemDetails(ecosystemData)} size="sm">
                                         Try Again
                                     </Button>
                                 </div>
-                            ) : partnershipDetails ? (
+                            ) : ecosystemDetails ? (
                                 <div className="space-y-8">
-                                    {/* Partnership Header */}
+                                    {/* Ecosystem Header */}
                                     <div className="bg-gradient-to-r from-primary-50 to-blue-50 dark:from-primary-900/20 dark:to-blue-900/20 rounded-xl p-6">
                                         <div className="flex items-start space-x-6">
                                             <div className="flex-shrink-0">
@@ -166,54 +146,64 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                                                 <div className="flex items-start justify-between">
                                                     <div>
                                                         <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-100">
-                                                            Partnership #{partnershipDetails.id}
+                                                            {ecosystemDetails.ecosystem_name}
                                                         </h2>
                                                         <div className="flex items-center mt-2 text-gray-600 dark:text-dark-300">
-                                                            <UserIcon className="size-5 mr-2" />
-                                                            <span>Created by: {partnershipDetails.created_by || 'System'}</span>
+                                                            <IdentificationIcon className="size-5 mr-2" />
+                                                            <span>Eco Code: {ecosystemDetails.eco_code}</span>
                                                         </div>
                                                         <div className="flex items-center mt-2 text-gray-600 dark:text-dark-300">
                                                             <CalendarIcon className="size-5 mr-2" />
-                                                            <span>Established: {dayjs(partnershipDetails.created_at).format('MMM DD, YYYY')}</span>
+                                                            <span>Established: {dayjs(ecosystemDetails.created_at).format('MMM DD, YYYY')}</span>
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-col items-end space-y-2">
-                                                        {getStatusBadge(partnershipDetails.status)}
+                                                        {getStatusBadge(ecosystemDetails.status)}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Partnership Information */}
+                                    {/* Ecosystem Information */}
                                     <div className="bg-white dark:bg-dark-700 rounded-xl border border-gray-200 dark:border-dark-600 p-6">
                                         <div className="flex items-center mb-6">
                                             <div className="p-2 bg-primary-100 dark:bg-primary-900/20 rounded-lg mr-3">
                                                 <UserGroupIcon className="size-6 text-primary-600 dark:text-primary-400" />
                                             </div>
                                             <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-                                                Partnership Information
+                                                Ecosystem Information
                                             </h3>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <InfoItem 
-                                                label="Partnership ID" 
-                                                value={`#${partnershipDetails.id}`}
+                                                label="Eco Code" 
+                                                value={ecosystemDetails.eco_code}
                                                 icon={IdentificationIcon}
                                             />
                                             <InfoItem 
-                                                label="Created By" 
-                                                value={partnershipDetails.created_by || 'System'}
-                                                icon={UserIcon}
+                                                label="Ecosystem Name" 
+                                                value={ecosystemDetails.ecosystem_name}
+                                                icon={UserGroupIcon}
+                                            />
+                                            <InfoItem 
+                                                label="Credit Period" 
+                                                value={`${ecosystemDetails.loan_payment_cycle_days} days`}
+                                                icon={ClockIcon}
+                                            />
+                                            <InfoItem 
+                                                label="Interest Rate" 
+                                                value={`${ecosystemDetails.interest_rate}%`}
+                                                icon={DocumentTextIcon}
                                             />
                                             <InfoItem 
                                                 label="Established" 
-                                                value={dayjs(partnershipDetails.created_at).format('MMM DD, YYYY HH:mm')}
+                                                value={dayjs(ecosystemDetails.created_at).format('MMM DD, YYYY HH:mm')}
                                                 icon={CalendarIcon}
                                             />
                                             <InfoItem 
                                                 label="Last Updated" 
-                                                value={dayjs(partnershipDetails.updated_at).format('MMM DD, YYYY HH:mm')}
+                                                value={dayjs(ecosystemDetails.updated_at).format('MMM DD, YYYY HH:mm')}
                                                 icon={ClockIcon}
                                             />
                                             <div className="flex items-start">
@@ -221,7 +211,7 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                                                 <div className="min-w-0 flex-1">
                                                     <p className="text-sm font-medium text-gray-700 dark:text-dark-200">Current Status</p>
                                                     <div className="mt-1">
-                                                        {getStatusBadge(partnershipDetails.status)}
+                                                        {getStatusBadge(ecosystemDetails.status)}
                                                     </div>
                                                 </div>
                                             </div>
@@ -243,22 +233,22 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                                             <div className="space-y-4">
                                                 <InfoItem 
                                                     label="Business Name" 
-                                                    value={businessData.business_name}
+                                                    value={ecosystemDetails.current_business?.business_name}
                                                     icon={BriefcaseIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Email" 
-                                                    value={businessData.business_email}
+                                                    value={ecosystemDetails.current_business?.business_email}
                                                     icon={EnvelopeIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Business Level" 
-                                                    value={businessData.business_level}
+                                                    value={ecosystemDetails.current_business_level}
                                                     icon={IdentificationIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Registration Number" 
-                                                    value={businessData.registration_number}
+                                                    value={ecosystemDetails.current_business?.registration_number}
                                                     icon={DocumentTextIcon}
                                                 />
                                             </div>
@@ -271,48 +261,48 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
                                                     <BuildingOfficeIcon className="size-6 text-green-600 dark:text-green-400" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-                                                    {partnershipData.business_name}
+                                                    {ecosystemDetails.partner_business?.business_name}
                                                 </h3>
                                             </div>
                                             <div className="space-y-4">
                                                 <InfoItem 
                                                     label="Business Name" 
-                                                    value={partnershipData.business_name}
+                                                    value={ecosystemDetails.partner_business?.business_name}
                                                     icon={BriefcaseIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Email" 
-                                                    value={partnershipData.business_email}
+                                                    value={ecosystemDetails.partner_business?.business_email}
                                                     icon={EnvelopeIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Business Level" 
-                                                    value={partnershipData.business_level}
+                                                    value={ecosystemDetails.partner_business_level}
                                                     icon={IdentificationIcon}
                                                 />
                                                 <InfoItem 
                                                     label="Registration Number" 
-                                                    value={partnershipData.registration_number}
+                                                    value={ecosystemDetails.partner_business?.registration_number}
                                                     icon={DocumentTextIcon}
                                                 />
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Partnership Notes */}
-                                    {partnershipDetails.notes && (
+                                    {/* Ecosystem Notes */}
+                                    {ecosystemDetails.notes && (
                                         <div className="bg-white dark:bg-dark-700 rounded-xl border border-gray-200 dark:border-dark-600 p-6">
                                             <div className="flex items-center mb-6">
                                                 <div className="p-2 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg mr-3">
                                                     <DocumentTextIcon className="size-6 text-yellow-600 dark:text-yellow-400" />
                                                 </div>
                                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-100">
-                                                    Partnership Notes
+                                                    Ecosystem Notes
                                                 </h3>
                                             </div>
                                             <div className="bg-gray-50 dark:bg-dark-600 rounded-lg p-4">
                                                 <p className="text-gray-900 dark:text-dark-100 text-sm whitespace-pre-wrap">
-                                                    {partnershipDetails.notes}
+                                                    {ecosystemDetails.notes}
                                                 </p>
                                             </div>
                                         </div>
@@ -340,6 +330,6 @@ export default function PartnershipDetailsModal({ open, onClose, partnershipData
 PartnershipDetailsModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
-    partnershipData: PropTypes.object,
+    ecosystemData: PropTypes.object,
     businessData: PropTypes.object,
 };

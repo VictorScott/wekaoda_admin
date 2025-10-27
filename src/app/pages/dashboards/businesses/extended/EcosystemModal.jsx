@@ -7,7 +7,6 @@ import {
 } from "@headlessui/react";
 import { 
     XMarkIcon,
-    UserGroupIcon,
     BuildingOfficeIcon
 } from "@heroicons/react/24/outline";
 import {
@@ -32,24 +31,25 @@ import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useLockScrollbar, useLocalStorage, useDidUpdate } from "hooks";
 import { fuzzyFilter } from "utils/react-table/fuzzyFilter";
 import { useSkipper } from "utils/react-table/useSkipper";
-import { fetchBusinessPartners } from "store/slices/businessSlice";
-import PartnershipDetailsModal from "./PartnershipDetailsModal";
-import { Toolbar } from "./partners-table/Toolbar";
-import { createColumns } from "./partners-table/columns";
+import { fetchBusinessEcosystems } from "store/slices/businessSlice";
+import { Toolbar } from "./eco-system-table/Toolbar";
+import { createColumns } from "./eco-system-table/columns";
+import PartnershipDetailsModal from "./PartnershipDetailsModal.jsx";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
-export default function PartnersListModal({ open, onClose, businessData, partnersType }) {
+export default function EcosystemModal({ open, onClose, businessData }) {
     const dispatch = useDispatch();
     const closeButtonRef = useRef(null);
     const { cardSkin } = useThemeContext();
     
     const [loading, setLoading] = useState(false);
-    const [partners, setPartners] = useState([]);
+    const [ecosystems, setEcosystems] = useState([]);
     const [error, setError] = useState("");
-    const [partnershipModalOpen, setPartnershipModalOpen] = useState(false);
-    const [selectedPartnership, setSelectedPartnership] = useState(null);
     const [lastUpdated, setLastUpdated] = useState(null);
+    const [partnershipDetailsOpen, setPartnershipDetailsOpen] = useState(false);
+    const [selectedEcosystem, setSelectedEcosystem] = useState(null);
+    const [lastEventId, setLastEventId] = useState(null);
     
     // Table settings
     const [tableSettings, setTableSettings] = useState({
@@ -59,76 +59,98 @@ export default function PartnersListModal({ open, onClose, businessData, partner
         enableColumnFilters: true,
     });
 
-    const [toolbarFilters, setToolbarFilters] = useState(["status", "partnership_status"]);
+    const [toolbarFilters, setToolbarFilters] = useState(["status"]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [sorting, setSorting] = useState([]);
     const [rowSelection, setRowSelection] = useState({});
 
+    // Safe localStorage keys
+    const businessId = businessData?.business_id || 'default';
     const [columnVisibility, setColumnVisibility] = useLocalStorage(
-        `column-visibility-partners-${partnersType}`,
+        `column-visibility-ecosystems-${businessId}`,
         {}
     );
 
     const [columnPinning, setColumnPinning] = useLocalStorage(
-        `column-pinning-partners-${partnersType}`,
+        `column-pinning-ecosystems-${businessId}`,
         {}
     );
 
     const [autoResetPageIndex] = useSkipper();
 
-    const fetchPartners = useCallback(async () => {
+    const fetchEcosystems = useCallback(async () => {
+        if (!businessData?.business_id) {
+            setError("No business data available");
+            return;
+        }
+        
         setLoading(true);
         setError("");
         try {
-            const result = await dispatch(fetchBusinessPartners({
+            const result = await dispatch(fetchBusinessEcosystems({
                 businessId: businessData.business_id,
-                type: partnersType
             })).unwrap();
             
             if (result.success) {
-                setPartners(result.data || []);
+                setEcosystems(result.data || []);
                 setLastUpdated(new Date());
             } else {
-                setError(result.message || `Failed to fetch ${partnersType}`);
+                setError(result.message || `Failed to fetch echo systems`);
             }
         } catch (err) {
-            setError(err.message || `Failed to fetch ${partnersType}`);
+            console.error('Error fetching ecosystems:', err);
+            setError(err.message || `Failed to fetch echo systems`);
         } finally {
             setLoading(false);
         }
-    }, [dispatch, businessData, partnersType]);
+    }, [dispatch, businessData]);
 
     useEffect(() => {
-        if (open && businessData && partnersType) {
-            fetchPartners();
+        if (open && businessData) {
+            fetchEcosystems();
         }
-    }, [open, businessData, partnersType, fetchPartners]);
+    }, [open, businessData, fetchEcosystems]);
+
+    // Listen for Details button clicks
+    useEffect(() => {
+        if (!open) return; // Only listen when modal is open
+        
+        const handleOpenPartnershipDetails = (event) => {
+            // Prevent multiple modals from opening using unique event ID
+            const eventId = event.detail.eventId;
+            if (partnershipDetailsOpen || lastEventId === eventId) return;
+            
+            setLastEventId(eventId);
+            setSelectedEcosystem(event.detail.ecosystemData);
+            setPartnershipDetailsOpen(true);
+        };
+
+        window.addEventListener('openPartnershipDetails', handleOpenPartnershipDetails);
+        
+        return () => {
+            window.removeEventListener('openPartnershipDetails', handleOpenPartnershipDetails);
+        };
+    }, [open, partnershipDetailsOpen, lastEventId]);
 
     const handleClose = () => {
-        // Don't clear partners data immediately to prevent flash
         setError("");
+        setPartnershipDetailsOpen(false);
+        setSelectedEcosystem(null);
+        setLastEventId(null);
         onClose();
         
-        // Clear state after modal closes
         setTimeout(() => {
-            setPartners([]);
+            setEcosystems([]);
             setGlobalFilter("");
             setSorting([]);
             setRowSelection({});
         }, 300);
     };
 
-    const handleViewPartnership = (partner) => {
-        setSelectedPartnership(partner);
-        setPartnershipModalOpen(true);
-    };
+    const columns = createColumns();
 
-    // Create columns with callback
-    const columns = createColumns(handleViewPartnership);
-
-    // React table setup
     const table = useReactTable({
-        data: partners || [],
+        data: ecosystems || [],
         columns: columns,
         state: {
             globalFilter,
@@ -169,8 +191,13 @@ export default function PartnersListModal({ open, onClose, businessData, partner
         autoResetPageIndex,
     });
 
-    useDidUpdate(() => table.resetRowSelection(), [partners]);
+    useDidUpdate(() => table.resetRowSelection(), [ecosystems]);
     useLockScrollbar(tableSettings.enableFullScreen);
+
+    // Early return if no business data
+    if (!businessData) {
+        return null;
+    }
 
     return (
         <>
@@ -207,9 +234,9 @@ export default function PartnersListModal({ open, onClose, businessData, partner
                             tableSettings.enableFullScreen ? "max-w-full h-full" : "max-w-6xl"
                         )}>
                             <div className="flex items-center justify-between rounded-t-lg bg-gray-200 px-4 py-3 dark:bg-dark-800 sm:px-5">
-                                <DialogTitle className="text-base font-medium text-gray-800 dark:text-dark-100">
-                                    Partners List
-                                </DialogTitle>
+                                        <DialogTitle className="text-base font-medium text-gray-800 dark:text-dark-100">
+                                            Ecosystem List
+                                        </DialogTitle>
                                 <Button
                                     onClick={handleClose}
                                     variant="flat"
@@ -228,14 +255,13 @@ export default function PartnersListModal({ open, onClose, businessData, partner
                                     "fixed inset-0 z-61 bg-white pt-3 dark:bg-dark-900"
                                 )}
                             >
-                                <Toolbar 
-                                    table={table} 
-                                    refreshing={loading} 
-                                    lastUpdated={lastUpdated}
-                                    onRefresh={fetchPartners}
-                                    businessName={businessData.business_name}
-                                    partnersType={partnersType}
-                                />
+                                        <Toolbar 
+                                            table={table} 
+                                            refreshing={loading} 
+                                            lastUpdated={lastUpdated}
+                                            onRefresh={fetchEcosystems}
+                                            businessName={businessData?.business_name || "Unknown Business"}
+                                        />
                                 <div
                                     className={clsx(
                                         "transition-content flex grow flex-col pt-3",
@@ -254,12 +280,12 @@ export default function PartnersListModal({ open, onClose, businessData, partner
                                         {loading ? (
                                             <div className="flex justify-center items-center py-12">
                                                 <Spinner color="primary" />
-                                                <span className="ml-3 text-gray-600 dark:text-dark-300">Loading partners...</span>
+                                                <span className="ml-3 text-gray-600 dark:text-dark-300">Loading ecosystems...</span>
                                             </div>
                                         ) : error ? (
                                             <div className="text-center py-8">
                                                 <div className="text-error dark:text-error-light mb-4">{error}</div>
-                                                <Button onClick={fetchPartners} size="sm">
+                                                <Button onClick={fetchEcosystems} size="sm">
                                                     Try Again
                                                 </Button>
                                             </div>
@@ -326,19 +352,15 @@ export default function PartnersListModal({ open, onClose, businessData, partner
                                                                     <Td colSpan={table.getAllColumns().length} className="h-[400px] text-center">
                                                                         <div className="flex flex-col items-center justify-center space-y-3">
                                                                             <div className="rounded-full bg-gray-100 p-8 dark:bg-dark-700">
-                                                                                {partnersType === 'suppliers' ? (
-                                                                                    <UserGroupIcon className="h-12 w-12 text-gray-400" />
-                                                                                ) : (
-                                                                                    <BuildingOfficeIcon className="h-12 w-12 text-gray-400" />
-                                                                                )}
+                                                                                <BuildingOfficeIcon className="h-12 w-12 text-gray-400" />
                                                                             </div>
                                                                             <div className="space-y-1">
-                                                                                <p className="text-lg font-medium text-gray-700 dark:text-dark-50">
-                                                                                    No {partnersType} found
-                                                                                </p>
-                                                                                <p className="text-sm text-gray-500 dark:text-dark-200">
-                                                                                    {globalFilter ? `No results found for "${globalFilter}"` : `No ${partnersType} partnerships exist yet.`}
-                                                                                </p>
+                                                    <p className="text-lg font-medium text-gray-700 dark:text-dark-50">
+                                                        No Ecosystems found
+                                                    </p>
+                                                    <p className="text-sm text-gray-500 dark:text-dark-200">
+                                                        {globalFilter ? `No results found for "${globalFilter}"` : `No ecosystems exist yet for ${businessData?.business_name || "this business"}.`}
+                                                    </p>
                                                                             </div>
                                                                         </div>
                                                                     </Td>
@@ -429,25 +451,24 @@ export default function PartnersListModal({ open, onClose, businessData, partner
                                     </Button>
                                 </div>
                             )}
-                        </DialogPanel>
-                    </TransitionChild>
-                </Dialog>
-            </Transition>
+                </DialogPanel>
+            </TransitionChild>
+        </Dialog>
+    </Transition>
 
-            {/* Partnership Details Modal */}
-            <PartnershipDetailsModal
-                open={partnershipModalOpen}
-                onClose={() => setPartnershipModalOpen(false)}
-                partnershipData={selectedPartnership}
-                businessData={businessData}
-            />
-        </>
-    );
+    {/* Partnership Details Modal */}
+    <PartnershipDetailsModal
+        open={partnershipDetailsOpen}
+        onClose={() => setPartnershipDetailsOpen(false)}
+        ecosystemData={selectedEcosystem}
+        businessData={businessData}
+    />
+</>
+);
 }
 
-PartnersListModal.propTypes = {
+EcosystemModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     businessData: PropTypes.object,
-    partnersType: PropTypes.oneOf(['suppliers', 'anchors']),
 };

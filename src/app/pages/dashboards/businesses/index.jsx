@@ -23,7 +23,8 @@ import { SelectedRowsActions } from "./SelectedRowsActions";
 import { useThemeContext } from "app/contexts/theme/context";
 import { getUserAgentBrowser } from "utils/dom/getUserAgentBrowser";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchBusinesses} from "../../../../store/slices/businessSlice";
+import {fetchBusinesses, getSingleBusiness, updateSingleBusiness} from "../../../../store/slices/businessSlice";
+import { OnboardingModal } from "./OnboardingModal";
 
 const isSafari = getUserAgentBrowser() === "Safari";
 
@@ -40,7 +41,7 @@ export default function BusinessDatatable() {
     enableRowDense: false,
   });
 
-  const [toolbarFilters, setToolbarFilters] = useState(["business_level","status"]);
+  const [toolbarFilters, setToolbarFilters] = useState(["status"]);
 
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -58,6 +59,8 @@ export default function BusinessDatatable() {
 
   const [autoResetPageIndex] = useSkipper();
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [onboardingModalOpen, setOnboardingModalOpen] = useState(false);
+  const [draftBusinessData, setDraftBusinessData] = useState(null);
 
   useEffect(() => {
     dispatch(fetchBusinesses())
@@ -66,8 +69,39 @@ export default function BusinessDatatable() {
       });
   }, [dispatch]);
 
+  const handleOnboardingSuccess = () => {
+    // Refresh the businesses list
+    dispatch(fetchBusinesses()).then(() => {
+      setLastUpdated(new Date());
+    });
+    // Close the modal and clear draft data
+    setOnboardingModalOpen(false);
+    setDraftBusinessData(null);
+  };
+
+  const handleDraftSaved = (businessId) => {
+    // Fetch individual business data instead of reloading whole table
+    dispatch(getSingleBusiness({ businessId })).then((result) => {
+      if (result.payload && result.payload.success) {
+        // Update the businesses state directly
+        const updatedBusiness = result.payload.data;
+        dispatch(updateSingleBusiness(updatedBusiness));
+      }
+    });
+  };
+
+  const openOnboardingModal = (draftData = null) => {
+    setDraftBusinessData(draftData);
+    setOnboardingModalOpen(true);
+  };
+
+  const handleAddBusiness = () => {
+    openOnboardingModal();
+  };
+
+
   const table = useReactTable({
-    data: businesses,
+    data: businesses || [],
     columns: columns,
     state: {
       globalFilter,
@@ -80,6 +114,7 @@ export default function BusinessDatatable() {
     meta: {
       setTableSettings,
       setToolbarFilters,
+      openOnboardingModal,
     },
     filterFns: {
       fuzzy: fuzzyFilter,
@@ -128,7 +163,7 @@ export default function BusinessDatatable() {
               "fixed inset-0 z-61 bg-white pt-3 dark:bg-dark-900",
           )}
         >
-          <Toolbar table={table} refreshing={refreshing} lastUpdated={lastUpdated} />
+          <Toolbar table={table} refreshing={refreshing} lastUpdated={lastUpdated} onAddBusiness={handleAddBusiness} />
           <div
             className={clsx(
               "transition-content flex grow flex-col pt-3",
@@ -308,6 +343,17 @@ export default function BusinessDatatable() {
           </div>
         </div>
       </div>
+
+      <OnboardingModal
+        open={onboardingModalOpen}
+        onClose={() => {
+          setOnboardingModalOpen(false);
+          setDraftBusinessData(null);
+        }}
+        onSuccess={handleOnboardingSuccess}
+        onDraftSaved={handleDraftSaved}
+        draftData={draftBusinessData}
+      />
     </Page>
   );
 }
