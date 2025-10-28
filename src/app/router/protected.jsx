@@ -13,14 +13,14 @@ const protectedRoutes = {
       children: [
         {
           index: true,
-          element: <Navigate to="/dashboard" />,
+          element: <Navigate to="/dashboard/businesses" />,
         },
         {
           path: "dashboard",
           children: [
             {
               index: true,
-              element: <Navigate to="/dashboard/home" />,
+              element: <Navigate to="/dashboard/businesses" />,
             },
             {
               path: "home",

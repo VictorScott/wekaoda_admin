@@ -30,7 +30,7 @@ import {fetchBusinesses, updateBusinessStatus, canShowStatusActions, discardDraf
 import BusinessDetailsModal from "./extended/BusinessDetailsModal.jsx";
 import CorrectionModal from "./extended/CorrectionModal.jsx";
 import { VerificationLogsModal } from "./extended/VerificationLogsModal.jsx";
-import EchoCodeModal from "./extended/EchoCodeModal.jsx";
+import EcoCodeModal from "./extended/EcoCodeModal.jsx";
 import EcosystemModal from "./extended/EcosystemModal.jsx";
 
 export function RowActions({ row, table }) {
@@ -51,7 +51,7 @@ export function RowActions({ row, table }) {
   const [verificationLogsModalOpen, setVerificationLogsModalOpen] = useState(false);
   
   // Modal state for echo code
-  const [echoCodeModalOpen, setEchoCodeModalOpen] = useState(false);
+  const [ecoCodeModalOpen, setEcoCodeModalOpen] = useState(false);
   
   // Modal state for echo system
   const [echoSystemModalOpen, setEchoSystemModalOpen] = useState(false);
@@ -201,19 +201,19 @@ export function RowActions({ row, table }) {
                 )}
               </MenuItem>
 
-              {/* Add Echo Code - Only for verified businesses */}
+              {/* Add Eco Code - Only for verified businesses */}
               {row.original.verification_status === 'verified' && (
                 <MenuItem>
                   {({ active }) => (
                       <button
-                          onClick={() => setEchoCodeModalOpen(true)}
+                          onClick={() => setEcoCodeModalOpen(true)}
                           className={clsx(
                               "flex h-9 w-full items-center space-x-3 px-3 tracking-wide outline-hidden transition-colors text-green-600 dark:text-green-400",
                               active && "bg-green-50 dark:bg-green-900/20"
                           )}
                       >
                         <LinkIcon className="size-4.5" />
-                        <span>Add Echo Code</span>
+                        <span>Add Eco Code</span>
                       </button>
                   )}
                 </MenuItem>
@@ -388,10 +388,10 @@ export function RowActions({ row, table }) {
             }}
         />
 
-        {/* Echo Code Modal */}
-        <EchoCodeModal
-            open={echoCodeModalOpen}
-            onClose={() => setEchoCodeModalOpen(false)}
+        {/* Eco Code Modal */}
+        <EcoCodeModal
+            open={ecoCodeModalOpen}
+            onClose={() => setEcoCodeModalOpen(false)}
             currentBusiness={row.original}
         />
 

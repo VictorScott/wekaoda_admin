@@ -48,7 +48,7 @@ const echoCodeSchema = yup.object().shape({
         .required("Interest rate is required"),
 });
 
-export default function EchoCodeModal({ open, onClose, currentBusiness }) {
+export default function EcoCodeModal({ open, onClose, currentBusiness }) {
     const closeButtonRef = useRef(null);
     const searchRef = useRef(null);
     const [loading, setLoading] = useState(false);
@@ -296,7 +296,7 @@ export default function EchoCodeModal({ open, onClose, currentBusiness }) {
                                 <div className="flex size-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/20">
                                     <LinkIcon className="size-4 text-green-600 dark:text-green-400" />
                                 </div>
-                                Add Echo Code
+                                Add Eco Code
                             </DialogTitle>
                             <Button
                                 onClick={handleClose}
@@ -328,7 +328,7 @@ export default function EchoCodeModal({ open, onClose, currentBusiness }) {
                                         </div>
                                         <div className="ml-4">
                                             <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">
-                                                Echo Code Generated Successfully!
+                                                Eco Code Generated Successfully!
                                             </h3>
                                             <div className="mt-2">
                                                 <p className="text-sm text-green-700 dark:text-green-300 mb-2">
@@ -336,7 +336,7 @@ export default function EchoCodeModal({ open, onClose, currentBusiness }) {
                                                 </p>
                                                 <div className="bg-white dark:bg-dark-700 rounded-lg p-4 border border-green-200 dark:border-green-800">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium text-gray-700 dark:text-dark-200">Echo Code:</span>
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-dark-200">Eco Code:</span>
                                                         <Badge color="success" size="lg" className="font-mono">
                                                             {generatedEchoCode}
                                                         </Badge>
@@ -644,7 +644,7 @@ export default function EchoCodeModal({ open, onClose, currentBusiness }) {
                                                 <span>Creating...</span>
                                             </div>
                                         ) : (
-                                            "Create Echo Code"
+                                            "Create Eco Code"
                                         )}
                                     </Button>
                                 </>
@@ -657,7 +657,7 @@ export default function EchoCodeModal({ open, onClose, currentBusiness }) {
     );
 }
 
-EchoCodeModal.propTypes = {
+EcoCodeModal.propTypes = {
     open: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
     currentBusiness: PropTypes.object,

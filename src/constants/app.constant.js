@@ -3,7 +3,7 @@ export const APP_KEY = "wekaoda";
 
 // Redirect Paths
 export const REDIRECT_URL_KEY = "redirect";
-export const HOME_PATH = "/"
+export const HOME_PATH = "/dashboard/businesses"
 export const GHOST_ENTRY_PATH = "/login"
 
 // Navigation Types
